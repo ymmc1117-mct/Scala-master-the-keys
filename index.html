@@ -68,7 +68,6 @@
     /* avatar icon inside account card */
     .avatar-icon {
       font-size: 30px;
-      color: var(--accent);
     }
 
     html, body {
@@ -181,7 +180,7 @@
     #screen-splash {
       justify-content: center; min-height: 100%;
       gap: 8px;
-      background: radial-gradient(ellipse at 50% 30%, rgba(200,169,110,0.08) 0%, transparent 60%);
+      background: var(--bg) radial-gradient(ellipse at 50% 30%, rgba(200,169,110,0.08) 0%, transparent 60%);
     }
     #screen-splash .logo { font-size: 72px; }
     #screen-splash .tagline {
@@ -195,38 +194,31 @@
       position: absolute;
       width: 100%; height: 120px;
       top: 50%; transform: translateY(-50%);
-      pointer-events: none; opacity: 0.05;
+      pointer-events: none; opacity: 0.12;
     }
     .staff-deco line { stroke: var(--accent); stroke-width: 1; }
 
     /* ─── SCREEN 2: ACCOUNT SELECT ─── */
     #screen-accounts { gap: 24px; }
     .accounts-grid {
-      display: flex; gap: 16px;
-      flex-wrap: wrap; justify-content: center;
-      width: 100%; max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%; max-width: 480px;
     }
     .account-card {
-      flex: 1; min-width: 180px; max-width: 220px;
-      padding: 28px 20px;
+      width: 100%;
+      padding: 18px 20px;
       border-radius: var(--radius-lg);
       cursor: pointer;
       border: 1.5px solid rgba(255,255,255,0.06);
       background: var(--surface);
       box-shadow: var(--shadow-md);
       transition: all 0.25s ease;
-      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      display: flex; flex-direction: row; align-items: center; gap: 16px;
     }
     .account-card:active { transform: scale(0.97); }
-    .account-card.empty {
-      border-style: dashed;
-      border-color: rgba(255,255,255,0.12);
-      background: transparent;
-    }
-    .account-card.selected {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent), var(--shadow-glow);
-    }
     .account-avatar {
       width: 64px; height: 64px;
       border-radius: 50%;
@@ -247,9 +239,34 @@
       flex-shrink: 0;
     }
     .account-edit-btn:active { color: var(--accent); background: rgba(200,169,110,0.1); }
-    .account-progress {
-      font-size: 12px; color: var(--text-dim);
-      display: flex; align-items: center; gap: 4px;
+    .account-add-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%;
+      padding: 14px 24px;
+      border-radius: var(--radius-pill);
+      margin-top: 4px;
+      flex-basis: 100%;   /* 必ず新しい行に折り返す */
+    }
+    /* ─── ACCOUNTS EMPTY STATE ─── */
+    .accounts-empty {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 16px;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .accounts-empty-icon {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px dashed rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .accounts-empty-title {
+      font-size: 20px; font-weight: 600; color: var(--text);
+    }
+    .accounts-empty-desc {
+      font-size: 14px; color: var(--text-dim);
+      line-height: 1.6; max-width: 260px;
     }
 
     /* ─── ACCOUNT CREATION ─── */
@@ -404,6 +421,13 @@
     }
     .greeting { font-size: 32px; font-weight: 600; }
     .greeting span { color: var(--accent); }
+    .account-switch-btn {
+      background: none; border: none; cursor: pointer;
+      padding: 8px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .account-switch-btn:active { background: rgba(200,169,110,0.1); }
     .mode-cards {
       display: flex; gap: 20px;
       width: 100%; max-width: 700px;
@@ -546,9 +570,33 @@
       color: var(--text);
       border: 1px solid rgba(255,255,255,0.08);
     }
-    .note-chip.raised { color: var(--sharp); border-color: rgba(110,181,200,0.2); background: rgba(110,181,200,0.06); }
-    .note-chip.lowered { color: var(--flat); border-color: rgba(200,110,138,0.2); background: rgba(200,110,138,0.06); }
-    .note-chip.leading { color: var(--accent); border-color: rgba(200,169,110,0.25); background: rgba(200,169,110,0.08); }
+    .note-chip.raised  { color: var(--sharp); border-color: rgba(110,181,200,0.3); background: rgba(110,181,200,0.08); }
+    .note-chip.lowered { color: var(--flat);  border-color: rgba(200,110,138,0.3); background: rgba(200,110,138,0.08); }
+    /* 導音：色は raised/lowered を継承し、太字＋バッジだけ付与 */
+    .note-chip.leading {
+      font-weight: 700;
+      position: relative;
+    }
+    /* 導音が変化なし（C dur の G など）の場合のデフォルト */
+    .note-chip.leading:not(.raised):not(.lowered) {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.2);
+      background: var(--surface3);
+    }
+    /* 導音バッジ */
+    .note-chip.leading::after {
+      content: '★';
+      position: absolute;
+      top: -7px; right: -5px;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--surface3);
+      border: 1px solid rgba(200,169,110,0.4);
+      border-radius: 4px;
+      padding: 0 3px;
+      line-height: 1.6;
+    }
     .detail-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dimmer); margin-top: 10px; }
 
     /* ─── Detail: kana + play button row ─── */
@@ -583,13 +631,17 @@
     .play-btn-label { font-size: 12px; }
 
     /* ─── Note chip: playing highlight ─── */
-    .note-chip.playing-note {
-      background: var(--accent);
-      color: #1a1208;
-      border-color: var(--accent2);
+    .note-chip.playing-note,
+    .note-chip.leading.playing-note,
+    .note-chip.leading.raised.playing-note,
+    .note-chip.leading.lowered.playing-note {
+      background: var(--accent) !important;
+      color: #1a1208 !important;
+      border-color: var(--accent2) !important;
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(200,169,110,0.4);
       transition: all 0.1s;
+      position: relative;
     }
 
     /* ─── Note row wrapper ─── */
@@ -604,8 +656,8 @@
       padding-bottom: 4px;
     }
     .gloss-row {
-      display: flex; gap: 10px;
-      margin-bottom: 8px;
+      display: flex; gap: 12px;
+      margin-bottom: 10px;
       align-items: flex-start;
     }
     .gloss-term {
@@ -613,11 +665,13 @@
       color: var(--sharp);
       white-space: nowrap;
       padding-top: 1px;
-      min-width: 80px;
+      min-width: 96px;
+      flex-shrink: 0;
     }
     .gloss-def {
       font-size: 11px; color: var(--text-dim);
-      line-height: 1.65;
+      line-height: 1.7;
+      flex: 1;
     }
 
     /* ─── SCREEN 5: TEST ─── */
@@ -663,6 +717,7 @@
     }
     .question-main.major { color: var(--sharp); }
     .question-main.minor { color: var(--flat); }
+    .question-main.none  { font-size: 28px; color: var(--text-dim); }
     .question-sub { font-size: 16px; color: var(--text-dim); }
     .question-type { font-size: 13px; color: var(--text-dimmer); margin-top: 4px; }
 
@@ -717,13 +772,12 @@
       display: flex; align-items: flex-end; justify-content: center;
       padding: 0 20px 40px;
       z-index: 50;
-      pointer-events: none;
+      pointer-events: none;   /* 常に透過 — 全画面をブロックしない */
       opacity: 0;
       transition: opacity 0.2s ease;
     }
     .feedback-popup.show {
       opacity: 1;
-      pointer-events: all;
     }
     .feedback-popup-inner {
       width: 100%; max-width: 560px;
@@ -733,11 +787,13 @@
       box-shadow: var(--shadow-lg);
       padding: 24px 28px;
       display: flex; align-items: center; gap: 16px;
+      pointer-events: none;   /* 非表示時はクリック無効 */
       transform: translateY(24px);
       transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .feedback-popup.show .feedback-popup-inner {
       transform: translateY(0);
+      pointer-events: all;    /* 表示時だけクリック有効 */
     }
     .feedback-popup-inner.ok { border-color: rgba(110,200,138,0.3); }
     .feedback-popup-inner.ng { border-color: rgba(200,110,110,0.3); }
@@ -887,10 +943,12 @@
     }
     .celebration.show { opacity: 1; pointer-events: all; }
     .celebration-title {
-      font-size: 44px; font-weight: 700; color: var(--accent);
+      font-family: 'DM Serif Display', serif;
+      font-size: 52px; font-weight: 400; color: var(--accent);
       text-align: center;
       text-shadow: 0 0 60px rgba(200,169,110,0.5);
       animation: pulse 2s ease-in-out infinite;
+      letter-spacing: -0.5px;
     }
     .celebration-sub { font-size: 18px; color: var(--text-dim); text-align: center; }
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
@@ -919,8 +977,7 @@
       #screen-splash .tagline { font-size: 13px; margin-bottom: 36px; }
 
       /* アカウント選択 */
-      .accounts-grid { flex-direction: column; align-items: center; }
-      .account-card { min-width: 0; width: 100%; max-width: 320px; flex-direction: row; padding: 18px 20px; gap: 16px; text-align: left; align-items: center; }
+      .account-card { padding: 14px 16px; gap: 12px; }
       .account-avatar { width: 48px; height: 48px; flex-shrink: 0; }
       .account-name { font-size: 15px; }
 
@@ -1000,7 +1057,6 @@
     <line x1="0" y1="100" x2="800" y2="100"/>
   </svg>
   <div class="logo">Scala</div>
-  <div class="logo-sub">音階マスター</div>
   <p class="tagline" style="font-family:'DM Serif Display',serif; font-style:italic;">Master the keys. Master the music.</p>
   <button class="btn btn-primary" style="min-width:200px;" onclick="showScreen('accounts')">はじめる</button>
 </div>
@@ -1009,8 +1065,7 @@
      SCREEN: ACCOUNTS
 ════════════════════════════════════ -->
 <div id="screen-accounts" class="screen">
-  <div class="logo" style="font-size:36px; margin-bottom:4px;">Scala</div>
-  <p style="color:var(--text-dim); font-size:14px; margin-bottom:32px;">アカウントを選択</p>
+  <div class="logo" style="font-size:36px; margin-bottom:4px; padding-top:32px;">Scala</div>
   <div class="accounts-grid" id="accounts-grid"></div>
 </div>
 
@@ -1020,21 +1075,20 @@
 <div id="screen-home" class="screen">
   <div class="home-header">
     <div>
-      <div class="greeting">こんにちは、<span id="greeting-name">—</span></div>
-      <div style="font-size:14px; color:var(--text-dim); margin-top:4px;">今日も音階を練習しましょう</div>
+      <div class="greeting"><span style="font-family:'DM Serif Display',serif; font-weight:400;">Hello, </span><span id="greeting-name">—</span></div>
     </div>
-    <button class="btn btn-ghost" onclick="showScreen('accounts')" style="font-size:22px; padding:8px;"><span class="ms ms-28" style="color:var(--text-dim);">arrow_back</span></button>
+    <button class="account-switch-btn" onclick="showScreen('accounts')" title="アカウント切り替え">
+      <span class="ms" style="font-size:22px; color:var(--accent);">manage_accounts</span>
+    </button>
   </div>
   <div class="mode-cards">
     <div class="mode-card learn card" onclick="showScreen('learn')">
-      <div class="mode-icon"><span class="ms ms-40">menu_book</span></div>
       <div class="mode-title">学習</div>
       <div class="mode-desc">全24の音階を一覧で確認。タップで音階の詳細を表示します。</div>
     </div>
     <div class="mode-card test card" onclick="showScreen('test-config')">
-      <div class="mode-icon"><span class="ms ms-40">edit_square</span></div>
       <div class="mode-title">テスト</div>
-      <div class="mode-desc">調号の数を答えてスコアを記録。弱点を確認しましょう。</div>
+      <div class="mode-desc">調号の数や音階名を4択で答えて、理解度を確認しましょう。</div>
     </div>
   </div>
 </div>
@@ -1044,7 +1098,7 @@
 ════════════════════════════════════ -->
 <div id="screen-learn" class="screen">
   <div class="nav-bar" style="max-width:800px; width:100%;">
-    <button class="btn btn-ghost" onclick="showScreen('home')" style="padding:8px;"><span class="ms ms-28" style="color:var(--text-dim);">home</span></button>
+    <button class="btn btn-ghost" onclick="showScreen('home')" style="padding:8px;"><span class="ms ms-28" style="color:var(--accent);">home</span></button>
     <div class="nav-title">学習</div>
   </div>
   <div class="filter-bar" id="filter-bar" style="max-width:800px; width:100%;">
@@ -1062,7 +1116,7 @@
 ════════════════════════════════════ -->
 <div id="screen-test-config" class="screen">
   <div class="nav-bar" style="max-width:560px; width:100%;">
-    <button class="btn btn-ghost" onclick="showScreen('home')" style="padding:8px;"><span class="ms ms-28" style="color:var(--text-dim);">home</span></button>
+    <button class="btn btn-ghost" onclick="showScreen('home')" style="padding:8px;"><span class="ms ms-28" style="color:var(--accent);">home</span></button>
     <div class="nav-title">テスト設定</div>
   </div>
   <div class="config-options">
@@ -1111,8 +1165,8 @@
      SCREEN: TEST
 ════════════════════════════════════ -->
 <div id="screen-test" class="screen">
-  <div class="nav-bar" style="max-width:700px; width:100%;">
-    <button class="btn btn-ghost" onclick="confirmExit()" style="padding:8px;"><span class="ms ms-28" style="color:var(--text-dim);">home</span></button>
+  <div class="nav-bar" style="max-width:700px; width:100%; position:sticky; top:0; z-index:51; background:var(--bg); padding-top:8px; margin-bottom:4px;">
+    <button class="btn btn-ghost" onclick="confirmExit()" style="padding:8px;"><span class="ms ms-28" style="color:var(--accent);">home</span></button>
     <div class="nav-title" id="test-mode-label">テスト</div>
     <button class="btn btn-ghost" onclick="showScreen('progress')" style="margin-left:auto; font-size:13px; color:var(--accent);">進捗</button>
   </div>
@@ -1206,17 +1260,17 @@
     <div class="modal-tab-panel active" id="panel-icon">
       <div class="avatar-picker" id="avatar-picker">
         <!-- 音楽系 -->
-        <div class="avatar-opt selected" data-icon="piano"                onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--accent);">piano</span></div>
-        <div class="avatar-opt"          data-icon="music_note"           onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">music_note</span></div>
-        <div class="avatar-opt"          data-icon="headphones"           onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#a78bfa;">headphones</span></div>
-        <div class="avatar-opt"          data-icon="mic"                  onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f472b6;">mic</span></div>
-        <div class="avatar-opt"          data-icon="queue_music"          onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">queue_music</span></div>
+        <div class="avatar-opt selected" data-icon="piano"         data-color="var(--accent)" onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--accent);">piano</span></div>
+        <div class="avatar-opt"          data-icon="music_note"    data-color="var(--sharp)"  onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">music_note</span></div>
+        <div class="avatar-opt"          data-icon="headphones"    data-color="#a78bfa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#a78bfa;">headphones</span></div>
+        <div class="avatar-opt"          data-icon="mic"           data-color="#f472b6"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f472b6;">mic</span></div>
+        <div class="avatar-opt"          data-icon="queue_music"   data-color="var(--sharp)"  onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">queue_music</span></div>
         <!-- おもしろ系 -->
-        <div class="avatar-opt"          data-icon="rocket_launch"        onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">rocket_launch</span></div>
-        <div class="avatar-opt"          data-icon="mood"                 onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#fde047;">mood</span></div>
-        <div class="avatar-opt"          data-icon="local_fire_department" onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f87171;">local_fire_department</span></div>
-        <div class="avatar-opt"          data-icon="pets"                 onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#d4a27f;">pets</span></div>
-        <div class="avatar-opt"          data-icon="skateboarding"        onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">skateboarding</span></div>
+        <div class="avatar-opt"          data-icon="rocket_launch" data-color="#60a5fa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">rocket_launch</span></div>
+        <div class="avatar-opt"          data-icon="mood"          data-color="#fde047"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#fde047;">mood</span></div>
+        <div class="avatar-opt"          data-icon="local_fire_department" data-color="#f87171" onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f87171;">local_fire_department</span></div>
+        <div class="avatar-opt"          data-icon="pets"          data-color="#d4a27f"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#d4a27f;">pets</span></div>
+        <div class="avatar-opt"          data-icon="skateboarding" data-color="#60a5fa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">skateboarding</span></div>
       </div>
     </div>
     <div class="modal-tab-panel" id="panel-photo">
@@ -1231,6 +1285,39 @@
     <div style="display:flex; gap:10px;">
       <button class="btn btn-ghost" style="flex:1;" onclick="closeModal()">キャンセル</button>
       <button class="btn btn-primary" style="flex:1;" id="modal-save-btn" onclick="saveAccount()">作成</button>
+    </div>
+    <div id="modal-delete-row" style="display:none; border-top:1px solid rgba(255,255,255,0.06); padding-top:12px; margin-top:-4px;">
+      <button class="btn btn-danger" style="width:100%;" onclick="confirmDeleteAccount()">
+        <span class="ms" style="font-size:18px;">delete</span> このアカウントを削除
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MODAL: DELETE CONFIRM
+════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal" style="gap:16px;">
+    <h2 style="font-size:18px; color:var(--error);">アカウントを削除しますか？</h2>
+    <p style="font-size:14px; color:var(--text-dim); line-height:1.6;">この操作は取り消せません。アカウントのデータがすべて削除されます。</p>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('modal-delete').classList.remove('open')">キャンセル</button>
+      <button class="btn btn-danger" style="flex:1;" onclick="deleteAccount()">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MODAL: EXIT CONFIRM
+════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-exit">
+  <div class="modal" style="gap:16px;">
+    <h2 style="font-size:18px;">テストを中断しますか？</h2>
+    <p style="font-size:14px; color:var(--text-dim); line-height:1.6;">ホームに戻ります。テスト結果は保存されません。</p>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('modal-exit').classList.remove('open')">続ける</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="exitConfirmed()">ホームへ</button>
     </div>
   </div>
 </div>
@@ -1261,7 +1348,7 @@
 <div class="celebration" id="celebration">
   <div class="confetti-wrap" id="confetti-wrap"></div>
   <div style="font-size:56px;"><span class="ms ms-48" style="color:var(--accent);">celebration</span></div>
-  <div class="celebration-title">完璧です！</div>
+  <div class="celebration-title">Perfect Score!</div>
   <div class="celebration-sub">全問正解おめでとうございます！<br>あなたは音階マスターです！</div>
   <div style="display:flex; gap:12px; margin-top:16px;">
     <button class="btn btn-secondary" onclick="hideCelebration(); showScreen('home')">ホームへ</button>
@@ -1276,7 +1363,7 @@
 const SCALES = [
   // MAJOR (Dur)
   { id:'C_dur',   de:'C dur',   jp:'ハ長調',   kana:'ツェー・ドゥア', en:'C Major',   type:'major', sign:'none',  count:0,
-    notes:['C','D','E','F','G','A','H'],
+    notes:['C','D','E','F','G','A','H'], leading:'H',
     midi:['C4','D4','E4','F4','G4','A4','B4','C5'] },
   { id:'G_dur',   de:'G dur',   jp:'ト長調',   kana:'ゲー・ドゥア',   en:'G Major',   type:'major', sign:'sharp', count:1,
     notes:['G','A','H','C','D','E','Fis'], leading:'Fis',
@@ -1418,13 +1505,36 @@ function showScreen(id) {
 // ACCOUNTS
 // ═══════════════════════════════════════════════════════════
 let pendingSlot = -1;
-let selectedIcon = 'piano';
+let selectedIcon  = 'piano';
+let selectedColor = 'var(--accent)';
 let selectedPhoto = null;
 let isEditMode = false;
 
 function renderAccounts() {
   const grid = document.getElementById('accounts-grid');
   grid.innerHTML = '';
+
+  const hasAny = state.accounts.some(a => a);
+
+  // 全スロット空の初回 → ウェルカム表示
+  if (!hasAny) {
+    const empty = document.createElement('div');
+    empty.className = 'accounts-empty';
+    empty.innerHTML = `
+      <div class="accounts-empty-icon">
+        <span class="ms" style="font-size:36px; color:var(--accent);">piano</span>
+      </div>
+      <div class="accounts-empty-title">はじめましょう</div>
+      <div class="accounts-empty-desc">アカウントを作成して、音階の練習をスタートしましょう。最大3人まで登録できます。</div>
+      <button class="btn btn-primary" style="min-width:200px; margin-top:4px;" onclick="openCreateAccount(0)">
+        <span class="ms" style="font-size:18px; vertical-align:middle;">add</span>
+        アカウントを作成
+      </button>`;
+    grid.appendChild(empty);
+    return;
+  }
+
+  // 1人以上いる通常表示
   for (let i = 0; i < 3; i++) {
     const acc = state.accounts[i];
     const card = document.createElement('div');
@@ -1433,28 +1543,26 @@ function renderAccounts() {
       card.className = 'account-card';
       card.onclick = () => selectAccount(i);
 
-      // アバター（写真 or アイコン） — src は base64 のみ許可
       const avatar = document.createElement('div');
       avatar.className = 'account-avatar';
       if (acc.photo && acc.photo.startsWith('data:image/')) {
         const img = document.createElement('img');
         img.src    = acc.photo;
-        img.alt    = ''; // alt に name を入れない（XSS対策）
+        img.alt    = '';
         img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;';
         avatar.appendChild(img);
       } else {
         const icon = document.createElement('span');
         icon.className   = 'ms avatar-icon';
-        icon.textContent = acc.icon || 'piano'; // textContent で安全に
+        icon.textContent = acc.icon || 'piano';
+        icon.style.color = acc.iconColor || 'var(--accent)';
         avatar.appendChild(icon);
       }
 
-      // 名前 — textContent で安全に
       const nameEl = document.createElement('div');
       nameEl.className   = 'account-name';
       nameEl.textContent = acc.name;
 
-      // 編集ボタン
       const editBtn = document.createElement('button');
       editBtn.className = 'account-edit-btn';
       editBtn.title     = '編集';
@@ -1464,24 +1572,24 @@ function renderAccounts() {
       card.appendChild(avatar);
       card.appendChild(nameEl);
       card.appendChild(editBtn);
-
-    } else {
-      card.className = 'account-card empty';
-      card.onclick   = () => openCreateAccount(i);
-      card.innerHTML =
-        '<div class="account-avatar"><span class="ms ms-32" style="color:var(--text-dimmer);">add</span></div>' +
-        '<div style="color:var(--text-dimmer);font-size:14px;">新規作成</div>';
+      grid.appendChild(card);
     }
-
-    grid.appendChild(card);
   }
-}
 
-function countMastered(acc) {
-  return SCALES.filter(s => {
-    const r = acc.results && acc.results[s.id];
-    return r && r.correct > 0 && r.wrong === 0;
-  }).length;
+  // 空きスロットがあれば「追加」ボタンを1つだけ表示
+  let emptySlot = -1;
+  for (let i = 0; i < 3; i++) {
+    if (!state.accounts[i]) { emptySlot = i; break; }
+  }
+  if (emptySlot !== -1) {
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn btn-secondary account-add-btn';
+    addBtn.onclick = () => openCreateAccount(emptySlot);
+    addBtn.innerHTML =
+      '<span class="ms" style="font-size:18px; color:var(--accent);">person_add</span>' +
+      '<span style="font-size:14px;">アカウントを追加</span>';
+    grid.appendChild(addBtn);
+  }
 }
 
 function selectAccount(i) {
@@ -1492,11 +1600,13 @@ function selectAccount(i) {
 function openCreateAccount(slot) {
   isEditMode = false;
   pendingSlot = slot;
-  selectedIcon = 'piano';
+  selectedIcon  = 'piano';
+  selectedColor = 'var(--accent)';
   selectedPhoto = null;
   document.getElementById('modal-account-title').textContent = 'アカウント作成';
   document.getElementById('modal-save-btn').textContent = '作成';
   document.getElementById('account-name-input').value = '';
+  document.getElementById('modal-delete-row').style.display = 'none';
   document.querySelectorAll('.avatar-opt').forEach(e => e.classList.remove('selected'));
   document.querySelector('.avatar-opt[data-icon="piano"]').classList.add('selected');
   resetPhotoUI();
@@ -1510,10 +1620,12 @@ function openEditAccount(evt, slot) {
   isEditMode = true;
   pendingSlot = slot;
   selectedPhoto = acc.photo || null;
-  selectedIcon = acc.icon || 'piano';
+  selectedIcon  = acc.icon  || 'piano';
+  selectedColor = acc.iconColor || 'var(--accent)';
   document.getElementById('modal-account-title').textContent = 'アカウント編集';
   document.getElementById('modal-save-btn').textContent = '保存';
   document.getElementById('account-name-input').value = acc.name;
+  document.getElementById('modal-delete-row').style.display = 'block';
   document.querySelectorAll('.avatar-opt').forEach(e => e.classList.remove('selected'));
   if (acc.photo) {
     switchModalTab('photo');
@@ -1529,6 +1641,20 @@ function openEditAccount(evt, slot) {
 function closeModal() {
   document.getElementById('modal-account').classList.remove('open');
 }
+function confirmDeleteAccount() {
+  document.getElementById('modal-delete').classList.add('open');
+}
+function deleteAccount() {
+  document.getElementById('modal-delete').classList.remove('open');
+  // ホームに表示中のアカウントが削除される場合はリセット
+  if (state.currentAccount && state.currentAccount.id === state.accounts[pendingSlot]?.id) {
+    state.currentAccount = null;
+  }
+  state.accounts[pendingSlot] = undefined;
+  saveState();
+  closeModal();
+  renderAccounts();
+}
 function switchModalTab(tab) {
   document.getElementById('tab-icon').classList.toggle('active', tab === 'icon');
   document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
@@ -1538,8 +1664,9 @@ function switchModalTab(tab) {
 function selectAvatar(el) {
   document.querySelectorAll('.avatar-opt').forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
-  selectedIcon = el.dataset.icon;
-  selectedPhoto = null; // アイコン選択時は写真をリセット
+  selectedIcon  = el.dataset.icon;
+  selectedColor = el.dataset.color || 'var(--accent)';
+  selectedPhoto = null;
 }
 function handlePhotoSelect(input) {
   const file = input.files[0];
@@ -1726,24 +1853,25 @@ function resetPhotoUI() {
 function saveAccount() {
   const name = document.getElementById('account-name-input').value.trim();
   if (!name) { document.getElementById('account-name-input').focus(); return; }
-  // 写真タブが選択中で写真がある場合は写真優先、なければアイコン
   const activeTab = document.getElementById('tab-photo').classList.contains('active');
   const usePhoto = activeTab && selectedPhoto;
   if (isEditMode) {
-    state.accounts[pendingSlot].name = name;
-    state.accounts[pendingSlot].icon = usePhoto ? null : selectedIcon;
-    state.accounts[pendingSlot].photo = usePhoto ? selectedPhoto : null;
+    state.accounts[pendingSlot].name      = name;
+    state.accounts[pendingSlot].icon      = usePhoto ? null : selectedIcon;
+    state.accounts[pendingSlot].iconColor = usePhoto ? null : selectedColor;
+    state.accounts[pendingSlot].photo     = usePhoto ? selectedPhoto : null;
     if (state.currentAccount && state.currentAccount.id === state.accounts[pendingSlot].id) {
-      state.currentAccount.name = name;
-      state.currentAccount.icon = state.accounts[pendingSlot].icon;
-      state.currentAccount.photo = state.accounts[pendingSlot].photo;
+      state.currentAccount.name      = name;
+      state.currentAccount.icon      = state.accounts[pendingSlot].icon;
+      state.currentAccount.iconColor = state.accounts[pendingSlot].iconColor;
+      state.currentAccount.photo     = state.accounts[pendingSlot].photo;
     }
   } else {
     state.accounts[pendingSlot] = {
       id: Date.now(), name,
-      icon: usePhoto ? null : selectedIcon,
-      photo: usePhoto ? selectedPhoto : null,
-      results: {}
+      icon:      usePhoto ? null : selectedIcon,
+      iconColor: usePhoto ? null : selectedColor,
+      photo:     usePhoto ? selectedPhoto : null,
     };
   }
   saveState();
@@ -1803,10 +1931,17 @@ function renderLearn() {
 
     // ─── Detail panel ───
     const noteChips = s.notes.map((n) => {
-      let cls = '';
-      if (s.leading && n === s.leading) cls = 'leading';
-      else if (n.includes('is')) cls = 'raised';
-      return `<span class="note-chip ${cls}">${n}</span>`;
+      const isLeading = s.leading && n === s.leading;
+      const isRaised  = /is$/.test(n);
+      const FLAT_NAMES = new Set(['B','Es','As','Des','Ges','Ces','Fes']);
+      const isLowered = !isRaised && FLAT_NAMES.has(n);
+      // クラスは組み合わせ可能（導音かつ♯ → "leading raised"）
+      const classes = [
+        isLeading ? 'leading'  : '',
+        isRaised  ? 'raised'   : '',
+        isLowered ? 'lowered'  : '',
+      ].filter(Boolean).join(' ');
+      return `<span class="note-chip ${classes}">${n}</span>`;
     }).join('');
 
     // 用語解説
@@ -1838,7 +1973,7 @@ function renderLearn() {
       <div class="note-row-wrap">
         <div class="detail-label">音列 ${s.type === 'minor' ? '（和声短音階）' : '（長音階）'}</div>
         <div class="note-row">${noteChips}</div>
-        ${s.leading ? `<div class="leading-note-row"><span class="ms" style="font-size:13px; color:var(--accent);">arrow_forward</span> <span style="font-size:12px; color:var(--accent);">導音: ${s.leading}</span></div>` : ''}
+        ${s.leading ? `<div class="leading-note-row"><span style="font-size:12px; color:var(--accent);">★ 導音: ${s.leading}</span></div>` : ''}
       </div>
       <div class="gloss-section">
         <div class="detail-label" style="margin-bottom:8px;">用語解説</div>
@@ -1927,9 +2062,9 @@ function renderQuestion() {
     const signStr = q.sign === 'none' ? '調号なし' : q.sign === 'sharp' ? `♯ が ${q.count} つ` : `♭ が ${q.count} つ`;
     const typeStr = q.type === 'major' ? '長調 (Dur)' : '短調 (moll)';
     document.getElementById('q-label').textContent = '調号と種類';
-    const icon = q.sign === 'sharp' ? '♯' : q.sign === 'flat' ? '♭' : '♮';
-    document.getElementById('q-main').textContent = q.sign === 'none' ? '♮' : `${icon}×${q.count}`;
-    document.getElementById('q-main').className = 'question-main ' + (q.sign === 'sharp' ? 'major' : q.sign === 'flat' ? 'minor' : '');
+    const icon = q.sign === 'sharp' ? '♯' : q.sign === 'flat' ? '♭' : null;
+    document.getElementById('q-main').textContent = q.sign === 'none' ? '調号なし' : `${icon}×${q.count}`;
+    document.getElementById('q-main').className = 'question-main ' + (q.sign === 'sharp' ? 'major' : q.sign === 'flat' ? 'minor' : 'none');
     document.getElementById('q-sub').textContent = typeStr;
     document.getElementById('q-type').textContent = '';
     document.getElementById('answer-type-label').textContent = '音階名を選択';
@@ -2011,21 +2146,17 @@ function showFeedbackPopup(isCorrect, msg, subLine1, subLine2) {
 function answerSign(isCorrect, btn, q) {
   if (state.answered) return;
   state.answered = true;
-  const acc = state.currentAccount;
-  if (!acc.results[q.id]) acc.results[q.id] = { correct: 0, wrong: 0 };
 
   const allBtns = document.querySelectorAll('.choice-btn');
   allBtns.forEach(b => { b.disabled = true; });
 
   if (isCorrect) {
     btn.classList.add('correct');
-    acc.results[q.id].correct++;
     state.testCorrect++;
     document.getElementById('test-correct-count').textContent = state.testCorrect;
     showFeedbackPopup(true, '正解！', '');
   } else {
     btn.classList.add('wrong');
-    acc.results[q.id].wrong++;
     // 調号がつく音名の順序（ドイツ音名）
     const SHARP_ORDER = ['Fis','Cis','Gis','Dis','Ais','Eis','His'];
     const FLAT_ORDER  = ['B','Es','As','Des','Ges','Ces','Fes'];
@@ -2070,7 +2201,6 @@ function answerSign(isCorrect, btn, q) {
       if (isC) b.classList.add('reveal');
     });
   }
-  saveState();
 }
 
 function nextQuestion() {
@@ -2104,8 +2234,16 @@ function confirmExit() {
   const started = state.testQueue.length > 0 &&
     (state.testIndex > 0 || state.answered);
   if (started) {
-    if (!confirm('テストを中断しますか？進捗は保存されています。')) return;
+    // iOS Safari は window.confirm() をブロックするためアプリ内モーダルを使用
+    document.getElementById('modal-exit').classList.add('open');
+  } else {
+    showScreen('home');
   }
+}
+function exitConfirmed() {
+  document.getElementById('modal-exit').classList.remove('open');
+  // ポップアップも閉じてからホームへ
+  document.getElementById('feedback-popup').classList.remove('show');
   showScreen('home');
 }
 
@@ -2135,14 +2273,18 @@ function hideCelebration() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// PIANO AUDIO — Pure Web Audio API synthesis (no CDN)
+// PIANO AUDIO
+// オンライン(GitHub Pages): soundfont-player + MP3サンプル音源
+// オフライン / アーティファクト: シンプル正弦波合成にフォールバック
 // ═══════════════════════════════════════════════════════════
-let audioCtx = null;
+let audioCtx          = null;
+let sfInstrument      = null;   // soundfont-player インスタンス
+let sfLoading         = false;
+let sfFailed          = false;  // ロード失敗フラグ
 let currentPlayTimers = [];
-let isPlaying = false;
-let activeNodes = [];
+let isPlaying         = false;
+let activeNodes       = [];
 
-// MIDI note name → frequency (A4 = 440 Hz)
 const NOTE_FREQ = (() => {
   const names = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
   const map = {};
@@ -2161,141 +2303,74 @@ function getAudioCtx() {
   return audioCtx;
 }
 
-/* ──────────────────────────────────────────────────
-   ピアノ音合成 — 改良版
-   ① 非調和性（inharmonicity）: 高次倍音をわずかに sharp に
-   ② ホワイトノイズバッファ: 本物のハンマー打鍵クリックを再現
-   ③ 周波数依存デケイ: 低音ほど長く鳴る
-   ④ ステレオパン: 低音=左、高音=右（グランドピアノの配置）
-   ⑤ 倍音ゲイン: 弦の張力モデルに基づいた自然な分布
-────────────────────────────────────────────────── */
-function synthPianoNote(freq, startTime, duration = 1.4) {
-  const ac = getAudioCtx();
-  const nodes = [];
-
-  // ① 周波数依存デケイ: 低音(200Hz)= ×2.2倍, 高音(1000Hz+)= ×1.0
-  const decayMult = Math.max(1.0, 2.2 - (freq - 200) / 500);
-  const actualDur = duration * decayMult;
-
-  // ④ ステレオパン (A4=440Hz を中央基準に左右±0.6)
-  const pan = ac.createStereoPanner
-    ? ac.createStereoPanner()
-    : { pan: { value: 0 }, connect: (n) => n };
-  if (pan.pan) pan.pan.value = Math.max(-0.7, Math.min(0.7, (Math.log2(freq / 440)) * -0.35));
-
-  // マスターゲイン + ADSR
-  const masterGain = ac.createGain();
-  const peak = 0.55;
-  masterGain.gain.setValueAtTime(0, startTime);
-  masterGain.gain.linearRampToValueAtTime(peak, startTime + 0.006);        // Attack (6ms)
-  masterGain.gain.exponentialRampToValueAtTime(peak * 0.55, startTime + 0.06); // Decay
-  masterGain.gain.exponentialRampToValueAtTime(peak * 0.38, startTime + 0.18); // Decay 2
-  masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + actualDur);  // Release
-
-  // ローパスフィルター（高音ほど倍音豊か、低音は丸く）
-  const filter = ac.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.value = Math.min(freq * 16, 16000);
-  filter.Q.value = 0.4;
-
-  // 接続チェーン: masterGain → filter → pan → destination
-  masterGain.connect(filter);
-  filter.connect(pan);
-  if (pan.connect) pan.connect(ac.destination);
-  else filter.connect(ac.destination);
-
-  // 短いルームリバーブ感（フィードバックディレイ）
-  const delay = ac.createDelay(0.1);
-  delay.delayTime.value = 0.028;
-  const delayGain = ac.createGain();
-  delayGain.gain.value = 0.09;
-  filter.connect(delay);
-  delay.connect(delayGain);
-  delayGain.connect(ac.destination);
-
-  // ① 非調和性係数 B（弦の剛性によるもの。低音=小さく, 高音=大きく）
-  const B = 0.00015 * Math.pow(freq / 440, 1.5);
-
-  // ⑤ 倍音列: [次数, 相対ゲイン]（グランドピアノの実測値に近い分布）
-  const harmonics = [
-    [1, 1.00],
-    [2, 0.48],
-    [3, 0.22],
-    [4, 0.10],
-    [5, 0.048],
-    [6, 0.022],
-    [7, 0.010],
-    [8, 0.005],
-    [9, 0.003],
-  ];
-
-  harmonics.forEach(([n, relGain]) => {
-    // ① 非調和周波数: f_n = n * f0 * sqrt(1 + B*n²)
-    const inharmFreq = n * freq * Math.sqrt(1 + B * n * n);
-    // 可聴域を超える場合はスキップ
-    if (inharmFreq > 20000) return;
-
-    // 高周波数域の音量ロールオフ（グランドピアノ特性）
-    const rolloff = Math.pow(Math.max(0.1, 1 - freq / 5000), 0.4);
-    const g = relGain * rolloff;
-
-    // 3本弦のユニゾン（実際のピアノは中高音域に3本の弦）
-    const unisonCount = freq > 300 ? 3 : freq > 150 ? 2 : 1;
-    const detuneSpread = freq > 300 ? 0.0012 : 0.0006;
-
-    for (let u = 0; u < unisonCount; u++) {
-      const osc = ac.createOscillator();
-      const oscGain = ac.createGain();
-      osc.type = n === 1 ? 'sine' : n <= 3 ? 'sine' : 'triangle';
-      // 各弦をわずかにデチューン
-      const detune = (u - (unisonCount - 1) / 2) * detuneSpread;
-      osc.frequency.value = inharmFreq * (1 + detune);
-      oscGain.gain.value = g / unisonCount;
-      osc.connect(oscGain);
-      oscGain.connect(masterGain);
-      osc.start(startTime);
-      osc.stop(startTime + actualDur + 0.05);
-      nodes.push(osc);
+/* soundfont-player を動的ロードして instrument を返す Promise */
+function loadSoundfont() {
+  return new Promise((resolve, reject) => {
+    // 既にロード済み
+    if (sfInstrument) { resolve(sfInstrument); return; }
+    // ロード失敗済み → フォールバック
+    if (sfFailed) { reject(new Error('sf failed')); return; }
+    // ロード中なら待機
+    if (sfLoading) {
+      const wait = setInterval(() => {
+        if (sfInstrument) { clearInterval(wait); resolve(sfInstrument); }
+        if (sfFailed)     { clearInterval(wait); reject(new Error('sf failed')); }
+      }, 100);
+      return;
     }
+
+    sfLoading = true;
+
+    // soundfont-player スクリプトを動的に挿入
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/soundfont-player/dist/soundfont-player.min.js';
+    script.onload = () => {
+      const ac = getAudioCtx();
+      Soundfont.instrument(ac, 'acoustic_grand_piano', {
+        soundfont: 'MusyngKite',
+        format: 'mp3',
+        gain: 3,
+      }).then(inst => {
+        sfInstrument = inst;
+        sfLoading    = false;
+        resolve(inst);
+      }).catch(e => {
+        sfLoading = false;
+        sfFailed  = true;
+        reject(e);
+      });
+    };
+    script.onerror = () => {
+      sfLoading = false;
+      sfFailed  = true;
+      reject(new Error('script load failed'));
+    };
+    document.head.appendChild(script);
   });
+}
 
-  // ② ホワイトノイズバッファでハンマー打鍵を再現
-  //    サンプル数=短く（20ms分）、一瞬だけ出してすぐ消す
-  try {
-    const bufLen = Math.floor(ac.sampleRate * 0.02);
-    const noiseBuffer = ac.createBuffer(1, bufLen, ac.sampleRate);
-    const data = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1);
-    const noiseSource = ac.createBufferSource();
-    noiseSource.buffer = noiseBuffer;
-
-    // ノイズはバンドパスフィルターで打鍵周波数帯に絞る
-    const bpf = ac.createBiquadFilter();
-    bpf.type = 'bandpass';
-    bpf.frequency.value = Math.min(freq * 3, 8000);
-    bpf.Q.value = 0.8;
-
-    const noiseGain = ac.createGain();
-    noiseGain.gain.setValueAtTime(0.18, startTime);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.018);
-
-    noiseSource.connect(bpf);
-    bpf.connect(noiseGain);
-    noiseGain.connect(ac.destination);
-    noiseSource.start(startTime);
-    noiseSource.stop(startTime + 0.022);
-    nodes.push(noiseSource);
-  } catch(e) { /* バッファ生成失敗時は無音で続行 */ }
-
-  activeNodes.push(...nodes);
-  return nodes;
+/* フォールバック: シンプルな正弦波合成 */
+function synthSimple(freq, startTime, duration) {
+  const ac  = getAudioCtx();
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type  = 'sine';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0, startTime);
+  g.gain.linearRampToValueAtTime(0.4, startTime + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+  osc.connect(g);
+  g.connect(ac.destination);
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.05);
+  activeNodes.push(osc);
 }
 
 function stopCurrentPlay() {
   currentPlayTimers.forEach(t => clearTimeout(t));
   currentPlayTimers = [];
   isPlaying = false;
-  const ac = audioCtx;
+  if (sfInstrument) try { sfInstrument.stop(); } catch(e) {}
   activeNodes.forEach(n => { try { n.stop(); } catch(e) {} });
   activeNodes = [];
 }
@@ -2307,7 +2382,6 @@ function playScale(scaleId, evt) {
 
   const btn = document.getElementById('play-' + scaleId);
 
-  // 演奏中なら停止
   if (isPlaying) {
     stopCurrentPlay();
     document.querySelectorAll('.play-btn').forEach(b => {
@@ -2322,7 +2396,6 @@ function playScale(scaleId, evt) {
   stopCurrentPlay();
   isPlaying = true;
 
-  // ボタン状態更新
   document.querySelectorAll('.play-btn').forEach(b => {
     b.classList.remove('playing');
     b.querySelector('.play-btn-label').textContent = '音を聴く';
@@ -2330,51 +2403,43 @@ function playScale(scaleId, evt) {
   });
   if (btn) {
     btn.classList.add('playing');
-    btn.querySelector('.play-btn-label').textContent = '演奏中';
-    btn.querySelector('.ms').textContent = 'stop';
+    btn.querySelector('.play-btn-label').textContent = '読込中…';
+    btn.querySelector('.ms').textContent = 'hourglass_empty';
   }
 
-  try {
+  const quarterInterval = 500;
+  const eighthInterval  = 250;
+  const quarterDuration = 1.4;
+  const eighthDuration  = 0.7;
+
+  const notes = [...scale.midi];
+  const schedule = [];
+  let cursor = 0;
+  notes.forEach((noteStr, i) => {
+    const isEdge = (i === 0 || i === notes.length - 1);
+    schedule.push({ noteStr, startMs: cursor, dur: isEdge ? quarterDuration : eighthDuration });
+    cursor += isEdge ? quarterInterval : eighthInterval;
+  });
+
+  // soundfont-player を試みる（失敗時はフォールバック）
+  loadSoundfont().then(inst => {
+    if (btn) {
+      btn.querySelector('.play-btn-label').textContent = '演奏中';
+      btn.querySelector('.ms').textContent = 'stop';
+    }
     const ac = getAudioCtx();
-    const notes = [...scale.midi]; // 8音
-
-    // 4分音符 = 500ms間隔, 8分音符 = 250ms間隔
-    // duration は次の音との間隔より少し長くして自然な重なりを作る
-    const quarterInterval = 500;  // ms
-    const eighthInterval  = 250;  // ms
-    const quarterDuration = 0.65; // 秒（次の音まで500msなので150ms重なる）
-    const eighthDuration  = 0.32; // 秒（次の音まで250msなので70ms重なる）
-
-    // 各音符の「開始時刻（ms）」と「デュレーション」を事前計算
-    const schedule = [];
-    let cursor = 0;
-    notes.forEach((noteStr, i) => {
-      const isEdge = (i === 0 || i === notes.length - 1);
-      const dur  = isEdge ? quarterDuration : eighthDuration;
-      const step = isEdge ? quarterInterval : eighthInterval;
-      schedule.push({ noteStr, startMs: cursor, dur });
-      cursor += step;
-    });
 
     schedule.forEach(({ noteStr, startMs, dur }, i) => {
-      const freq = NOTE_FREQ[noteStr];
-      if (!freq) return;
-
-      const t1 = setTimeout(() => {
-        const startTime = ac.currentTime;
-        synthPianoNote(freq, startTime, dur);
-
-        // 音名チップをハイライト
+      const t = setTimeout(() => {
+        inst.play(noteStr, ac.currentTime, { duration: dur, gain: 3 });
         const chips = document.querySelectorAll(`#detail-${scaleId} .note-chip`);
         chips.forEach(c => c.classList.remove('playing-note'));
         if (chips[i]) chips[i].classList.add('playing-note');
       }, startMs);
-      currentPlayTimers.push(t1);
+      currentPlayTimers.push(t);
     });
 
-    // 終了処理（最後の音の開始 + その duration）
-    const lastEntry = schedule[schedule.length - 1];
-    const totalMs = lastEntry.startMs + lastEntry.dur * 1000 + 200;
+    const last = schedule[schedule.length - 1];
     const resetT = setTimeout(() => {
       isPlaying = false;
       activeNodes = [];
@@ -2384,17 +2449,42 @@ function playScale(scaleId, evt) {
         btn.querySelector('.ms').textContent = 'play_arrow';
       }
       document.querySelectorAll('.note-chip').forEach(c => c.classList.remove('playing-note'));
-    }, totalMs);
+    }, last.startMs + last.dur * 1000 + 300);
     currentPlayTimers.push(resetT);
 
-  } catch(e) {
-    isPlaying = false;
+  }).catch(() => {
+    // オフライン / CDN到達不可 → シンプル合成にフォールバック
     if (btn) {
-      btn.classList.remove('playing');
-      btn.querySelector('.play-btn-label').textContent = '音を聴く';
-      btn.querySelector('.ms').textContent = 'play_arrow';
+      btn.querySelector('.play-btn-label').textContent = '演奏中';
+      btn.querySelector('.ms').textContent = 'stop';
     }
-  }
+    const ac = getAudioCtx();
+
+    schedule.forEach(({ noteStr, startMs, dur }, i) => {
+      const freq = NOTE_FREQ[noteStr];
+      if (!freq) return;
+      const t = setTimeout(() => {
+        synthSimple(freq, ac.currentTime, dur);
+        const chips = document.querySelectorAll(`#detail-${scaleId} .note-chip`);
+        chips.forEach(c => c.classList.remove('playing-note'));
+        if (chips[i]) chips[i].classList.add('playing-note');
+      }, startMs);
+      currentPlayTimers.push(t);
+    });
+
+    const last = schedule[schedule.length - 1];
+    const resetT = setTimeout(() => {
+      isPlaying = false;
+      activeNodes = [];
+      if (btn) {
+        btn.classList.remove('playing');
+        btn.querySelector('.play-btn-label').textContent = '音を聴く';
+        btn.querySelector('.ms').textContent = 'play_arrow';
+      }
+      document.querySelectorAll('.note-chip').forEach(c => c.classList.remove('playing-note'));
+    }, last.startMs + last.dur * 1000 + 300);
+    currentPlayTimers.push(resetT);
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
