@@ -1,0 +1,18 @@
+{
+  "name": "Scala — 音階マスター",
+  "short_name": "Scala",
+  "description": "ピアノ音階の暗記アプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#1a1a2e",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

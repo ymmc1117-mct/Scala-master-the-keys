@@ -1,0 +1,2412 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Scala — 音階マスター</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon512.png" />
+  <meta name="apple-mobile-web-app-title" content="Scala" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,1,0" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #22223b;
+      --surface3: #2d2d4a;
+      --accent: #c8a96e;
+      --accent2: #e8c98e;
+      --sharp: #6eb5c8;
+      --flat: #c86e8a;
+      --text: #f0ece4;
+      --text-dim: #a09890;
+      --text-dimmer: #605850;
+      --success: #6ec88a;
+      --error: #c86e6e;
+      --radius-sm: 12px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
+      --radius-pill: 999px;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.04);
+      --shadow-md: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+      --shadow-lg: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+      --shadow-glow: 0 0 40px rgba(200,169,110,0.15), 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    /* ─── MATERIAL SYMBOLS ─── */
+    .ms {
+      font-family: 'Material Symbols Rounded';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      user-select: none;
+    }
+    .ms-20 { font-size: 20px; }
+    .ms-28 { font-size: 28px; }
+    .ms-32 { font-size: 32px; }
+    .ms-40 { font-size: 40px; }
+    .ms-48 { font-size: 48px; }
+    /* avatar icon inside account card */
+    .avatar-icon {
+      font-size: 30px;
+      color: var(--accent);
+    }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      overflow: hidden;
+    }
+
+    /* ─── NOISE TEXTURE ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.6;
+    }
+
+    /* ─── SCREENS ─── */
+    .screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 32px 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      transform: translateY(16px);
+      background: var(--bg);
+    }
+    .screen.active {
+      opacity: 1; pointer-events: all; transform: translateY(0);
+    }
+    .screen.exit {
+      opacity: 0; transform: translateY(-16px);
+    }
+    /* Screens that need full scroll (not the ones with inner scroll lists) */
+    #screen-accounts, #screen-home, #screen-results, #screen-test-config, #screen-splash {
+      overflow-y: auto;
+      justify-content: flex-start;
+    }
+    /* Screens with inner scroll lists keep overflow hidden */
+    #screen-learn {
+      overflow: hidden;
+    }
+    #screen-test {
+      overflow-y: auto;
+    }
+
+    /* ─── COMMON ─── */
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 52px;
+      color: var(--accent);
+      letter-spacing: -1px;
+      text-shadow: 0 0 60px rgba(200,169,110,0.4);
+    }
+    .logo-sub {
+      font-size: 13px;
+      color: var(--text-dim);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 32px;
+      border: none; cursor: pointer;
+      border-radius: var(--radius-pill);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 500;
+      letter-spacing: 0.2px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #1a1208;
+      box-shadow: 0 4px 20px rgba(200,169,110,0.35), 0 1px 0 rgba(255,255,255,0.2) inset;
+    }
+    .btn-primary:active { transform: scale(0.97); box-shadow: 0 2px 10px rgba(200,169,110,0.2); }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-secondary:active { transform: scale(0.97); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-dim);
+      padding: 10px 20px;
+    }
+    .btn-ghost:active { color: var(--text); }
+    .btn-danger {
+      background: rgba(200,110,110,0.15);
+      color: var(--error);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* ─── SCREEN 1: SPLASH ─── */
+    #screen-splash {
+      justify-content: center; min-height: 100%;
+      gap: 8px;
+      background: radial-gradient(ellipse at 50% 30%, rgba(200,169,110,0.08) 0%, transparent 60%);
+    }
+    #screen-splash .logo { font-size: 72px; }
+    #screen-splash .tagline {
+      color: var(--text-dim);
+      font-size: 15px;
+      margin-top: 8px; margin-bottom: 48px;
+      font-weight: 300;
+      font-style: italic;
+    }
+    .staff-deco {
+      position: absolute;
+      width: 100%; height: 120px;
+      top: 50%; transform: translateY(-50%);
+      pointer-events: none; opacity: 0.05;
+    }
+    .staff-deco line { stroke: var(--accent); stroke-width: 1; }
+
+    /* ─── SCREEN 2: ACCOUNT SELECT ─── */
+    #screen-accounts { gap: 24px; }
+    .accounts-grid {
+      display: flex; gap: 16px;
+      flex-wrap: wrap; justify-content: center;
+      width: 100%; max-width: 700px;
+    }
+    .account-card {
+      flex: 1; min-width: 180px; max-width: 220px;
+      padding: 28px 20px;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,0.06);
+      background: var(--surface);
+      box-shadow: var(--shadow-md);
+      transition: all 0.25s ease;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+    .account-card:active { transform: scale(0.97); }
+    .account-card.empty {
+      border-style: dashed;
+      border-color: rgba(255,255,255,0.12);
+      background: transparent;
+    }
+    .account-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), var(--shadow-glow);
+    }
+    .account-avatar {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      background: var(--surface2);
+      border: 2px solid rgba(255,255,255,0.08);
+    }
+    .account-name { font-size: 16px; font-weight: 500; color: var(--text); }
+    .account-edit-btn {
+      margin-left: auto;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-dimmer);
+      padding: 6px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .account-edit-btn:active { color: var(--accent); background: rgba(200,169,110,0.1); }
+    .account-progress {
+      font-size: 12px; color: var(--text-dim);
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    /* ─── ACCOUNT CREATION ─── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 36px 32px;
+      width: 380px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; flex-direction: column; gap: 20px;
+      transform: scale(0.95); transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal { transform: scale(1); }
+    .modal h2 { font-size: 22px; font-weight: 600; color: var(--accent); }
+    .input-field {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-field:focus { border-color: var(--accent); }
+    .avatar-picker {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .avatar-opt {
+      width: 52px; height: 52px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.1);
+      background: var(--surface2);
+      font-size: 22px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .avatar-opt.selected { border-color: var(--accent); background: rgba(200,169,110,0.15); }
+
+    /* ─── MODAL TABS ─── */
+    .modal-tabs {
+      display: flex; gap: 6px;
+      background: var(--surface2);
+      border-radius: var(--radius-pill);
+      padding: 4px;
+    }
+    .modal-tab {
+      flex: 1; padding: 8px 0;
+      border: none; cursor: pointer;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .modal-tab.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+    .modal-tab-panel { display: none; }
+    .modal-tab-panel.active { display: block; }
+
+    /* ─── PHOTO UPLOAD ─── */
+    .photo-upload-area {
+      border: 2px dashed rgba(255,255,255,0.15);
+      border-radius: var(--radius-lg);
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .photo-upload-area:active { border-color: var(--accent); background: rgba(200,169,110,0.05); }
+    .photo-preview {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      display: none;
+    }
+    .photo-preview.show { display: block; }
+
+    /* ─── AVATAR IMAGE in card ─── */
+    .account-avatar img {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* ─── CROP MODAL ─── */
+    .crop-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.88);
+      z-index: 200;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .crop-overlay.open { opacity: 1; pointer-events: all; }
+    .crop-title { font-size: 16px; font-weight: 500; color: var(--text); position: relative; z-index: 2; }
+    .crop-hint  { font-size: 12px; color: var(--text-dim); margin-top: -12px; position: relative; z-index: 2; }
+    .crop-canvas-wrap {
+      position: relative;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid var(--accent);
+      cursor: grab;
+      touch-action: none;
+      z-index: 2;
+    }
+    .crop-canvas-wrap:active { cursor: grabbing; }
+    #crop-canvas {
+      position: absolute;
+      transform-origin: top left;
+      touch-action: none;
+    }
+    .crop-zoom-row {
+      display: flex; align-items: center; gap: 12px;
+      width: 280px;
+      position: relative; z-index: 2;
+    }
+    .crop-zoom-row input[type=range] {
+      flex: 1; accent-color: var(--accent);
+    }
+    .crop-btns { display: flex; gap: 12px; position: relative; z-index: 2; }
+    .crop-btns .btn { min-width: 120px; }
+
+    /* ─── SCREEN 3: HOME ─── */
+    #screen-home { gap: 24px; justify-content: center; min-height: 100%; }
+    .home-header {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; max-width: 700px;
+    }
+    .greeting { font-size: 32px; font-weight: 600; }
+    .greeting span { color: var(--accent); }
+    .mode-cards {
+      display: flex; gap: 20px;
+      width: 100%; max-width: 700px;
+    }
+    .mode-card {
+      flex: 1;
+      padding: 32px 28px;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,0.06);
+      transition: all 0.25s ease;
+      display: flex; flex-direction: column; gap: 12px;
+      position: relative; overflow: hidden;
+    }
+    .mode-card::before {
+      content: '';
+      position: absolute;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      right: -20px; top: -20px;
+      opacity: 0.08;
+    }
+    .mode-card.learn { background: linear-gradient(135deg, #1e2a3a, #1a2236); }
+    .mode-card.learn::before { background: var(--sharp); }
+    .mode-card.test { background: linear-gradient(135deg, #2a1e2e, #221a2a); }
+    .mode-card.test::before { background: var(--flat); }
+    .mode-card:active { transform: scale(0.98); }
+    .mode-icon { font-size: 36px; }
+    .mode-title { font-size: 22px; font-weight: 600; }
+    .mode-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+    /* ─── SCREEN 4: LEARN ─── */
+    #screen-learn { gap: 0; justify-content: flex-start; padding-top: 24px; height: 100%; }
+    .nav-bar {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; max-width: 800px;
+      padding-bottom: 20px;
+    }
+    .nav-title { font-size: 18px; font-weight: 500; margin-left: 4px; color: var(--text); }
+    .filter-bar {
+      display: flex; gap: 8px;
+      width: 100%; max-width: 800px;
+      margin-bottom: 16px;
+    }
+    .filter-btn {
+      padding: 8px 20px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid rgba(255,255,255,0.08);
+      background: transparent;
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn.active {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: rgba(255,255,255,0.14);
+      box-shadow: var(--shadow-sm);
+    }
+    .scale-list {
+      width: 100%; max-width: 800px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex; flex-direction: column; gap: 8px;
+      padding-bottom: 16px;
+      scroll-behavior: smooth;
+    }
+    .scale-list::-webkit-scrollbar { width: 4px; }
+    .scale-list::-webkit-scrollbar-track { background: transparent; }
+    .scale-list::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 4px; }
+    .scale-item {
+      display: flex; align-items: center;
+      padding: 18px 22px;
+      border-radius: 0;
+      background: var(--surface);
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      gap: 16px;
+    }
+    /* Wrapper carries the visible card border */
+    [id^="wrap-"] {
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    [id^="wrap-"].expanded-wrap {
+      border-color: rgba(255,255,255,0.13);
+      box-shadow: var(--shadow-md);
+    }
+    .scale-item:active { opacity: 0.85; }
+    .scale-item.expanded {
+      background: var(--surface2);
+    }
+    .scale-name-de {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px; min-width: 120px;
+    }
+    .scale-name-de.major { color: var(--sharp); }
+    .scale-name-de.minor { color: var(--flat); }
+    .scale-info { flex: 1; }
+    .scale-jp { font-size: 13px; color: var(--text-dim); }
+    .scale-kana { font-size: 11px; color: var(--text-dimmer); margin-top: 2px; letter-spacing: 0.3px; }
+    .scale-badge {
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .badge-none { background: rgba(255,255,255,0.06); color: var(--text-dim); }
+    .badge-sharp { background: rgba(110,181,200,0.15); color: var(--sharp); }
+    .badge-flat { background: rgba(200,110,138,0.15); color: var(--flat); }
+    .scale-expand {
+      font-size: 18px;
+      color: var(--text-dimmer);
+      transition: transform 0.25s;
+    }
+    .scale-item.expanded .scale-expand { transform: rotate(90deg); }
+    .scale-detail {
+      display: none;
+      padding: 4px 22px 18px;
+      background: var(--surface2);
+      border-radius: 0 0 20px 20px;
+      margin-top: 0;
+    }
+    .scale-detail.open { display: block; }
+    .note-row {
+      display: flex; gap: 6px;
+      flex-wrap: wrap;
+      padding: 12px 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 4px;
+    }
+    .note-chip {
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 14px; font-weight: 500;
+      background: var(--surface3);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .note-chip.raised { color: var(--sharp); border-color: rgba(110,181,200,0.2); background: rgba(110,181,200,0.06); }
+    .note-chip.lowered { color: var(--flat); border-color: rgba(200,110,138,0.2); background: rgba(200,110,138,0.06); }
+    .note-chip.leading { color: var(--accent); border-color: rgba(200,169,110,0.25); background: rgba(200,169,110,0.08); }
+    .detail-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dimmer); margin-top: 10px; }
+
+    /* ─── Detail: kana + play button row ─── */
+    .detail-kana-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .detail-kana-text {
+      font-size: 16px; font-weight: 600;
+      color: var(--accent); letter-spacing: 1px;
+    }
+    .play-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid rgba(200,169,110,0.3);
+      background: rgba(200,169,110,0.08);
+      color: var(--accent);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .play-btn:active { transform: scale(0.97); }
+    .play-btn.playing {
+      background: rgba(200,169,110,0.18);
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(200,169,110,0.2);
+    }
+    .play-btn-label { font-size: 12px; }
+
+    /* ─── Note chip: playing highlight ─── */
+    .note-chip.playing-note {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(200,169,110,0.4);
+      transition: all 0.1s;
+    }
+
+    /* ─── Note row wrapper ─── */
+    .note-row-wrap { padding-top: 4px; }
+    .leading-note-row { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+
+    /* ─── Glossary section ─── */
+    .gloss-section {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 4px;
+    }
+    .gloss-row {
+      display: flex; gap: 10px;
+      margin-bottom: 8px;
+      align-items: flex-start;
+    }
+    .gloss-term {
+      font-size: 11px; font-weight: 600;
+      color: var(--sharp);
+      white-space: nowrap;
+      padding-top: 1px;
+      min-width: 80px;
+    }
+    .gloss-def {
+      font-size: 11px; color: var(--text-dim);
+      line-height: 1.65;
+    }
+
+    /* ─── SCREEN 5: TEST ─── */
+    #screen-test { gap: 0; justify-content: flex-start; padding-top: 24px; }
+    .test-wrap {
+      width: 100%; max-width: 700px;
+      display: flex; flex-direction: column; gap: 20px;
+      padding-bottom: 24px;
+    }
+    .progress-info {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%;
+    }
+    .progress-count { font-size: 24px; font-weight: 600; }
+    .progress-count span { color: var(--text-dim); font-size: 16px; }
+    .progress-track {
+      width: 100%; height: 6px;
+      background: var(--surface2);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.4s ease;
+    }
+    .question-card {
+      padding: 36px 32px;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: var(--shadow-md);
+      display: flex; flex-direction: column; gap: 8px;
+      text-align: center;
+    }
+    .question-label { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dimmer); }
+    .question-main {
+      font-family: 'DM Serif Display', serif;
+      font-size: 52px;
+      line-height: 1;
+      margin: 8px 0;
+    }
+    .question-main.major { color: var(--sharp); }
+    .question-main.minor { color: var(--flat); }
+    .question-sub { font-size: 16px; color: var(--text-dim); }
+    .question-type { font-size: 13px; color: var(--text-dimmer); margin-top: 4px; }
+
+    .answer-type { font-size: 13px; color: var(--text-dim); font-weight: 500; margin-top: 4px; }
+    .answer-choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .choice-btn {
+      padding: 18px 16px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid rgba(255,255,255,0.08);
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+      text-align: center; line-height: 1.4;
+    }
+    .choice-btn:active:not(:disabled) { transform: scale(0.98); }
+    .choice-btn.correct {
+      background: rgba(110,200,138,0.15);
+      border-color: var(--success);
+      color: var(--success);
+      box-shadow: 0 0 20px rgba(110,200,138,0.2);
+    }
+    .choice-btn.wrong {
+      background: rgba(200,110,110,0.1);
+      border-color: var(--error);
+      color: var(--error);
+    }
+    .choice-btn.reveal { background: rgba(110,200,138,0.08); border-color: rgba(110,200,138,0.3); color: var(--success); }
+    /* disabled 状態でも選択結果の色を維持 */
+    .choice-btn:disabled { cursor: default; opacity: 1; }
+    .choice-btn:disabled:not(.correct):not(.wrong):not(.reveal) { opacity: 0.4; }
+    .feedback-text {
+      text-align: center;
+      font-size: 16px; font-weight: 500;
+      height: 24px;
+      transition: all 0.3s;
+    }
+    .feedback-text.ok { color: var(--success); }
+    .feedback-text.ng { color: var(--error); }
+    .next-btn-wrap { display: flex; justify-content: center; }
+
+    /* ─── FEEDBACK POPUP ─── */
+    .feedback-popup {
+      position: fixed; inset: 0;
+      display: flex; align-items: flex-end; justify-content: center;
+      padding: 0 20px 40px;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .feedback-popup.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .feedback-popup-inner {
+      width: 100%; max-width: 560px;
+      background: var(--surface2);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow-lg);
+      padding: 24px 28px;
+      display: flex; align-items: center; gap: 16px;
+      transform: translateY(24px);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .feedback-popup.show .feedback-popup-inner {
+      transform: translateY(0);
+    }
+    .feedback-popup-inner.ok { border-color: rgba(110,200,138,0.3); }
+    .feedback-popup-inner.ng { border-color: rgba(200,110,110,0.3); }
+    .feedback-popup-icon .ms {
+      font-size: 36px;
+    }
+    .feedback-popup-icon.ok .ms { color: var(--success); }
+    .feedback-popup-icon.ng .ms { color: var(--error); }
+    .feedback-popup-msg {
+      font-size: 18px; font-weight: 600;
+    }
+    .feedback-popup-msg.ok { color: var(--success); }
+    .feedback-popup-msg.ng { color: var(--error); }
+    .feedback-popup-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .feedback-popup-sub {
+      font-size: 12px; color: var(--text-dim);
+      display: none;
+      line-height: 1.7;
+    }
+    .feedback-popup-sub div:first-child {
+      font-weight: 500; color: var(--text);
+    }
+    .feedback-next-btn { white-space: nowrap; flex-shrink: 0; }
+
+    /* ─── TEST TYPE SELECTOR ─── */
+    #screen-test-config { gap: 24px; }
+    .config-options {
+      display: flex; flex-direction: column; gap: 12px;
+      width: 100%; max-width: 560px;
+    }
+    .config-card {
+      padding: 20px 24px;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1.5px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; gap: 16px;
+      box-shadow: var(--shadow-sm);
+      color: var(--text);
+    }
+    .config-card.selected { border-color: var(--accent); background: rgba(200,169,110,0.06); color: var(--text); }
+    .config-card:active { transform: scale(0.99); }
+    .config-icon { font-size: 28px; }
+    .config-title { font-size: 16px; font-weight: 500; color: var(--text); }
+    .config-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+    .config-check {
+      margin-left: auto;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .config-card.selected .config-check {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #1a1208;
+    }
+    .scope-row {
+      display: flex; gap: 8px;
+      width: 100%; max-width: 560px;
+    }
+    /* scope カードは幅が小さいので専用レイアウト */
+    .scope-card {
+      flex: 1;
+      padding: 16px 12px;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1.5px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      text-align: center;
+      min-width: 0;
+    }
+    .scope-card.selected { border-color: var(--accent); background: rgba(200,169,110,0.06); }
+    .scope-card:active { transform: scale(0.97); }
+    .scope-card-icon { font-size: 0; line-height: 1; }
+    .scope-card-label {
+      font-size: 13px; font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .scope-card-check {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .scope-card.selected .scope-card-check {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #1a1208;
+    }
+
+    /* ─── SCREEN 6: RESULTS ─── */
+    #screen-results { gap: 24px; }
+    .results-ring {
+      position: relative;
+      width: 160px; height: 160px;
+    }
+    .results-ring svg { transform: rotate(-90deg); }
+    .results-ring-text {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2px;
+    }
+    .results-pct { font-size: 36px; font-weight: 600; }
+    .results-pct-label { font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
+    .results-stats {
+      display: flex; gap: 24px;
+    }
+    .r-stat {
+      text-align: center;
+      padding: 16px 24px;
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .r-stat-val { font-size: 28px; font-weight: 600; }
+    .r-stat-label { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ─── CELEBRATION ─── */
+    .celebration {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px;
+      z-index: 200;
+      background: rgba(15,15,26,0.9);
+      backdrop-filter: blur(20px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s;
+    }
+    .celebration.show { opacity: 1; pointer-events: all; }
+    .celebration-title {
+      font-size: 44px; font-weight: 700; color: var(--accent);
+      text-align: center;
+      text-shadow: 0 0 60px rgba(200,169,110,0.5);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .celebration-sub { font-size: 18px; color: var(--text-dim); text-align: center; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+    .confetti-wrap {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 8px; height: 14px;
+      border-radius: 3px;
+      animation: fall linear forwards;
+      opacity: 0;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    /* タブレット〜小型スマホ共通 */
+    @media (max-width: 600px) {
+      .screen { padding: 20px 16px; }
+
+      /* スプラッシュ */
+      #screen-splash .logo { font-size: 52px; }
+      #screen-splash .tagline { font-size: 13px; margin-bottom: 36px; }
+
+      /* アカウント選択 */
+      .accounts-grid { flex-direction: column; align-items: center; }
+      .account-card { min-width: 0; width: 100%; max-width: 320px; flex-direction: row; padding: 18px 20px; gap: 16px; text-align: left; align-items: center; }
+      .account-avatar { width: 48px; height: 48px; flex-shrink: 0; }
+      .account-name { font-size: 15px; }
+
+      /* ホーム */
+      .greeting { font-size: 24px; }
+      .home-header { margin-bottom: 0; }
+      .mode-cards { flex-direction: column; gap: 12px; }
+      .mode-card { padding: 22px 20px; }
+      .mode-title { font-size: 18px; }
+      .mode-desc { font-size: 12px; }
+      .mode-icon .ms { font-size: 28px !important; }
+
+      /* 学習モード */
+      .nav-bar { padding-bottom: 12px; }
+      .filter-bar { gap: 6px; flex-wrap: wrap; }
+      .filter-btn { padding: 6px 14px; font-size: 12px; }
+      .scale-item { padding: 14px 14px; gap: 10px; }
+      .scale-name-de { font-size: 18px; min-width: 90px; }
+      .scale-jp { font-size: 12px; }
+      .scale-badge { font-size: 11px; padding: 3px 9px; }
+
+      /* テスト設定 */
+      .config-card { padding: 14px 16px; gap: 12px; }
+      .config-title { font-size: 14px; }
+      .config-desc { font-size: 11px; }
+      .config-icon .ms { font-size: 22px !important; }
+      .scope-row { gap: 6px; }
+
+      /* テスト本体 */
+      .test-wrap { gap: 14px; }
+      .progress-count { font-size: 20px; }
+      .question-card { padding: 24px 18px; gap: 6px; }
+      .question-main { font-size: 38px; }
+      .question-sub { font-size: 14px; }
+      .answer-choices { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .choice-btn { padding: 14px 10px; font-size: 13px; }
+
+      /* 結果 */
+      .results-ring { width: 130px; height: 130px; }
+      .results-ring svg { width: 130px; height: 130px; }
+      .results-pct { font-size: 28px; }
+      .results-stats { gap: 10px; }
+      .r-stat { padding: 12px 14px; }
+      .r-stat-val { font-size: 22px; }
+
+      /* 進捗 削除済み */
+
+      /* モーダル */
+      .modal { width: calc(100vw - 40px); padding: 28px 22px; }
+    }
+
+    /* iPhone SE 3世代 (375×667) 追加調整 */
+    @media (max-width: 390px) {
+      .screen { padding: 16px 14px; }
+      #screen-splash .logo { font-size: 44px; }
+      .question-main { font-size: 32px; }
+      .answer-choices { grid-template-columns: 1fr; gap: 8px; }
+      .choice-btn { padding: 14px 12px; }
+      .mode-cards { gap: 10px; }
+      .accounts-grid { gap: 10px; }
+      .results-stats { flex-wrap: wrap; justify-content: center; }
+      .celebration-title { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     SCREEN: SPLASH
+════════════════════════════════════ -->
+<div id="screen-splash" class="screen active">
+  <svg class="staff-deco" viewBox="0 0 800 120">
+    <line x1="0" y1="20" x2="800" y2="20"/>
+    <line x1="0" y1="40" x2="800" y2="40"/>
+    <line x1="0" y1="60" x2="800" y2="60"/>
+    <line x1="0" y1="80" x2="800" y2="80"/>
+    <line x1="0" y1="100" x2="800" y2="100"/>
+  </svg>
+  <div class="logo">Scala</div>
+  <div class="logo-sub">音階マスター</div>
+  <p class="tagline" style="font-family:'DM Serif Display',serif; font-style:italic;">Master the keys. Master the music.</p>
+  <button class="btn btn-primary" style="min-width:200px;" onclick="showScreen('accounts')">はじめる</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN: ACCOUNTS
+════════════════════════════════════ -->
+<div id="screen-accounts" class="screen">
+  <div class="logo" style="font-size:36px; margin-bottom:4px;">Scala</div>
+  <p style="color:var(--text-dim); font-size:14px; margin-bottom:32px;">アカウントを選択</p>
+  <div class="accounts-grid" id="accounts-grid"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN: HOME
+════════════════════════════════════ -->
+<div id="screen-home" class="screen">
+  <div class="home-header">
+    <div>
+      <div class="greeting">こんにちは、<span id="greeting-name">—</span></div>
+      <div style="font-size:14px; color:var(--text-dim); margin-top:4px;">今日も音階を練習しましょう</div>
+    </div>
+    <button class="btn btn-ghost" onclick="showScreen('accounts')" style="font-size:22px; padding:8px;"><span class="ms ms-28" style="color:var(--text-dim);">arrow_back</span></button>
+  </div>
+  <div class="mode-cards">
+    <div class="mode-card learn card" onclick="showScreen('learn')">
+      <div class="mode-icon"><span class="ms ms-40">menu_book</span></div>
+      <div class="mode-title">学習</div>
+      <div class="mode-desc">全24の音階を一覧で確認。タップで音階の詳細を表示します。</div>
+    </div>
+    <div class="mode-card test card" onclick="showScreen('test-config')">
+      <div class="mode-icon"><span class="ms ms-40">edit_square</span></div>
+      <div class="mode-title">テスト</div>
+      <div class="mode-desc">調号の数を答えてスコアを記録。弱点を確認しましょう。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN: LEARN
+════════════════════════════════════ -->
+<div id="screen-learn" class="screen">
+  <div class="nav-bar" style="max-width:800px; width:100%;">
+    <button class="btn btn-ghost" onclick="showScreen('home')" style="padding:8px;"><span class="ms ms-28" style="color:var(--text-dim);">home</span></button>
+    <div class="nav-title">学習</div>
+  </div>
+  <div class="filter-bar" id="filter-bar" style="max-width:800px; width:100%;">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">すべて</button>
+    <button class="filter-btn" data-filter="major" onclick="setFilter('major',this)">長調 Major</button>
+    <button class="filter-btn" data-filter="minor" onclick="setFilter('minor',this)">短調 Minor</button>
+    <button class="filter-btn" data-filter="sharp" onclick="setFilter('sharp',this)">♯系</button>
+    <button class="filter-btn" data-filter="flat" onclick="setFilter('flat',this)">♭系</button>
+  </div>
+  <div class="scale-list" id="scale-list" style="max-width:800px; width:100%;"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN: TEST CONFIG
+════════════════════════════════════ -->
+<div id="screen-test-config" class="screen">
+  <div class="nav-bar" style="max-width:560px; width:100%;">
+    <button class="btn btn-ghost" onclick="showScreen('home')" style="padding:8px;"><span class="ms ms-28" style="color:var(--text-dim);">home</span></button>
+    <div class="nav-title">テスト設定</div>
+  </div>
+  <div class="config-options">
+    <div style="font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dimmer); margin-bottom:4px;">問題タイプ</div>
+    <div class="config-card selected" id="cfg-type-sign" onclick="selectConfig('type','sign',this)">
+      <div class="config-icon"><span class="ms ms-28" style="color:var(--sharp);">tag</span></div>
+      <div>
+        <div class="config-title">調号の数を答える</div>
+        <div class="config-desc">音階名を見て ♯/♭ の数を選択</div>
+      </div>
+      <div class="config-check"><span class="ms" style="font-size:14px;">check</span></div>
+    </div>
+    <div class="config-card" id="cfg-type-name" onclick="selectConfig('type','name',this)">
+      <div class="config-icon"><span class="ms ms-28" style="color:var(--flat);">music_note</span></div>
+      <div>
+        <div class="config-title">音階名を答える</div>
+        <div class="config-desc">調号の情報から音階名を選択</div>
+      </div>
+      <div class="config-check"><span class="ms" style="font-size:14px;">check</span></div>
+    </div>
+  </div>
+  <div class="scope-row">
+    <div style="font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dimmer); width:100%; margin-bottom:4px; margin-top:8px;">範囲</div>
+  </div>
+  <div class="scope-row">
+    <div class="scope-card selected" id="cfg-scope-all" onclick="selectConfig('scope','all',this)">
+      <div class="scope-card-check"><span class="ms" style="font-size:11px;">check</span></div>
+      <div class="scope-card-icon"><span class="ms ms-28" style="color:var(--accent);">piano</span></div>
+      <div class="scope-card-label">全24音階</div>
+    </div>
+    <div class="scope-card" id="cfg-scope-major" onclick="selectConfig('scope','major',this)">
+      <div class="scope-card-check"><span class="ms" style="font-size:11px;">check</span></div>
+      <div class="scope-card-icon"><span class="ms ms-28" style="color:#e8c060;">light_mode</span></div>
+      <div class="scope-card-label">長調のみ</div>
+    </div>
+    <div class="scope-card" id="cfg-scope-minor" onclick="selectConfig('scope','minor',this)">
+      <div class="scope-card-check"><span class="ms" style="font-size:11px;">check</span></div>
+      <div class="scope-card-icon"><span class="ms ms-28" style="color:var(--flat);">dark_mode</span></div>
+      <div class="scope-card-label">短調のみ</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" style="min-width:200px; margin-top:16px;" onclick="startTest()">テスト開始</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN: TEST
+════════════════════════════════════ -->
+<div id="screen-test" class="screen">
+  <div class="nav-bar" style="max-width:700px; width:100%;">
+    <button class="btn btn-ghost" onclick="confirmExit()" style="padding:8px;"><span class="ms ms-28" style="color:var(--text-dim);">home</span></button>
+    <div class="nav-title" id="test-mode-label">テスト</div>
+    <button class="btn btn-ghost" onclick="showScreen('progress')" style="margin-left:auto; font-size:13px; color:var(--accent);">進捗</button>
+  </div>
+  <div class="test-wrap">
+    <div>
+      <div class="progress-info">
+        <div class="progress-count" id="test-progress">1 <span>/ 12</span></div>
+        <div style="font-size:13px; color:var(--text-dim);">正解 <span id="test-correct-count" style="color:var(--success);">0</span></div>
+      </div>
+      <div class="progress-track" style="margin-top:10px;">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="question-label" id="q-label">音階名</div>
+      <div class="question-main" id="q-main">—</div>
+      <div class="question-sub" id="q-sub">—</div>
+      <div class="question-type" id="q-type">—</div>
+    </div>
+    <div class="answer-type" id="answer-type-label">調号を選択してください</div>
+    <div class="answer-choices" id="answer-choices"></div>
+  </div>
+</div>
+
+<!-- ─── FEEDBACK POPUP ─── -->
+<div class="feedback-popup" id="feedback-popup">
+  <div class="feedback-popup-inner" id="feedback-popup-inner">
+    <div class="feedback-popup-icon" id="feedback-popup-icon"></div>
+    <div class="feedback-popup-body">
+      <div class="feedback-popup-msg" id="feedback-popup-msg"></div>
+      <div class="feedback-popup-sub" id="feedback-popup-sub"></div>
+    </div>
+    <button class="btn btn-primary feedback-next-btn" id="next-btn" onclick="nextQuestion()">次の問題</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN: RESULTS
+════════════════════════════════════ -->
+<div id="screen-results" class="screen">
+  <div class="logo" style="font-size:32px; margin-bottom:8px;">結果</div>
+  <div class="results-ring">
+    <svg width="160" height="160" viewBox="0 0 160 160">
+      <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+      <circle id="results-ring-circle" cx="80" cy="80" r="68" fill="none" stroke="var(--accent)" stroke-width="10"
+        stroke-linecap="round" stroke-dasharray="427" stroke-dashoffset="427"
+        transform="rotate(-90 80 80)" style="transition:stroke-dashoffset 0.8s ease"/>
+    </svg>
+    <div class="results-ring-text">
+      <div class="results-pct" id="results-pct">—</div>
+      <div class="results-pct-label">正解率</div>
+    </div>
+  </div>
+  <div class="results-stats">
+    <div class="r-stat">
+      <div class="r-stat-val" id="r-correct" style="color:var(--success);">—</div>
+      <div class="r-stat-label">正解</div>
+    </div>
+    <div class="r-stat">
+      <div class="r-stat-val" id="r-wrong" style="color:var(--error);">—</div>
+      <div class="r-stat-label">不正解</div>
+    </div>
+    <div class="r-stat">
+      <div class="r-stat-val" id="r-total">—</div>
+      <div class="r-stat-label">合計</div>
+    </div>
+  </div>
+  <div style="display:flex; gap:12px;">
+    <button class="btn btn-secondary" onclick="showScreen('home')">ホームへ</button>
+    <button class="btn btn-primary" onclick="showScreen('test-config')">もう一度</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN: PROGRESS
+════════════════════════════════════ -->
+<!-- ═══════════════════════════════════
+     MODAL: ACCOUNT CREATION
+════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-account">
+  <div class="modal">
+    <h2 id="modal-account-title">アカウント作成</h2>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-icon" onclick="switchModalTab('icon')">
+        <span class="ms" style="font-size:15px; vertical-align:middle;">interests</span> アイコン
+      </button>
+      <button class="modal-tab" id="tab-photo" onclick="switchModalTab('photo')">
+        <span class="ms" style="font-size:15px; vertical-align:middle;">photo_camera</span> 写真
+      </button>
+    </div>
+    <div class="modal-tab-panel active" id="panel-icon">
+      <div class="avatar-picker" id="avatar-picker">
+        <!-- 音楽系 -->
+        <div class="avatar-opt selected" data-icon="piano"                onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--accent);">piano</span></div>
+        <div class="avatar-opt"          data-icon="music_note"           onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">music_note</span></div>
+        <div class="avatar-opt"          data-icon="headphones"           onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#a78bfa;">headphones</span></div>
+        <div class="avatar-opt"          data-icon="mic"                  onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f472b6;">mic</span></div>
+        <div class="avatar-opt"          data-icon="queue_music"          onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">queue_music</span></div>
+        <!-- おもしろ系 -->
+        <div class="avatar-opt"          data-icon="rocket_launch"        onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">rocket_launch</span></div>
+        <div class="avatar-opt"          data-icon="mood"                 onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#fde047;">mood</span></div>
+        <div class="avatar-opt"          data-icon="local_fire_department" onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f87171;">local_fire_department</span></div>
+        <div class="avatar-opt"          data-icon="pets"                 onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#d4a27f;">pets</span></div>
+        <div class="avatar-opt"          data-icon="skateboarding"        onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">skateboarding</span></div>
+      </div>
+    </div>
+    <div class="modal-tab-panel" id="panel-photo">
+      <div class="photo-upload-area" onclick="document.getElementById('photo-file-input').click()">
+        <img class="photo-preview" id="photo-preview" src="" alt="プレビュー" />
+        <span class="ms ms-40" style="color:var(--text-dimmer);" id="photo-upload-icon">add_photo_alternate</span>
+        <div style="font-size:13px; color:var(--text-dim);" id="photo-upload-label">タップして写真を選択</div>
+      </div>
+      <input type="file" id="photo-file-input" accept="image/*" style="display:none;" onchange="handlePhotoSelect(this)" />
+    </div>
+    <input class="input-field" type="text" id="account-name-input" placeholder="名前を入力…" maxlength="12" />
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" style="flex:1;" id="modal-save-btn" onclick="saveAccount()">作成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     CROP OVERLAY
+════════════════════════════════════ -->
+<div class="crop-overlay" id="crop-overlay">
+  <div class="crop-title">切り取り範囲を調整</div>
+  <div class="crop-hint">ドラッグで移動 / スライダーで拡大縮小</div>
+  <div class="crop-canvas-wrap" id="crop-wrap">
+    <canvas id="crop-canvas"></canvas>
+  </div>
+  <div class="crop-zoom-row">
+    <span class="ms" style="font-size:18px; color:var(--text-dim);">zoom_out</span>
+    <input type="range" id="crop-zoom" min="0.5" max="3" step="0.01" value="1" oninput="cropDraw()">
+    <span class="ms" style="font-size:18px; color:var(--text-dim);">zoom_in</span>
+  </div>
+  <div class="crop-btns">
+    <button class="btn btn-secondary" onclick="closeCrop()">キャンセル</button>
+    <button class="btn btn-primary"   onclick="confirmCrop()">この範囲で決定</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     CELEBRATION OVERLAY
+════════════════════════════════════ -->
+<div class="celebration" id="celebration">
+  <div class="confetti-wrap" id="confetti-wrap"></div>
+  <div style="font-size:56px;"><span class="ms ms-48" style="color:var(--accent);">celebration</span></div>
+  <div class="celebration-title">完璧です！</div>
+  <div class="celebration-sub">全問正解おめでとうございます！<br>あなたは音階マスターです！</div>
+  <div style="display:flex; gap:12px; margin-top:16px;">
+    <button class="btn btn-secondary" onclick="hideCelebration(); showScreen('home')">ホームへ</button>
+    <button class="btn btn-primary" onclick="hideCelebration(); showScreen('test-config')">もう一度挑戦</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+const SCALES = [
+  // MAJOR (Dur)
+  { id:'C_dur',   de:'C dur',   jp:'ハ長調',   kana:'ツェー・ドゥア', en:'C Major',   type:'major', sign:'none',  count:0,
+    notes:['C','D','E','F','G','A','H'],
+    midi:['C4','D4','E4','F4','G4','A4','B4','C5'] },
+  { id:'G_dur',   de:'G dur',   jp:'ト長調',   kana:'ゲー・ドゥア',   en:'G Major',   type:'major', sign:'sharp', count:1,
+    notes:['G','A','H','C','D','E','Fis'], leading:'Fis',
+    midi:['G4','A4','B4','C5','D5','E5','Gb5','G5'] },
+  { id:'D_dur',   de:'D dur',   jp:'ニ長調',   kana:'デー・ドゥア',   en:'D Major',   type:'major', sign:'sharp', count:2,
+    notes:['D','E','Fis','G','A','H','Cis'], leading:'Cis',
+    midi:['D4','E4','Gb4','G4','A4','B4','Db5','D5'] },
+  { id:'A_dur',   de:'A dur',   jp:'イ長調',   kana:'アー・ドゥア',   en:'A Major',   type:'major', sign:'sharp', count:3,
+    notes:['A','H','Cis','D','E','Fis','Gis'], leading:'Gis',
+    midi:['A4','B4','Db5','D5','E5','Gb5','Ab5','A5'] },
+  { id:'E_dur',   de:'E dur',   jp:'ホ長調',   kana:'エー・ドゥア',   en:'E Major',   type:'major', sign:'sharp', count:4,
+    notes:['E','Fis','Gis','A','H','Cis','Dis'], leading:'Dis',
+    midi:['E4','Gb4','Ab4','A4','B4','Db5','Eb5','E5'] },
+  { id:'H_dur',   de:'H dur',   jp:'ロ長調',   kana:'ハー・ドゥア',   en:'B Major',   type:'major', sign:'sharp', count:5,
+    notes:['H','Cis','Dis','E','Fis','Gis','Ais'], leading:'Ais',
+    midi:['B3','Db4','Eb4','E4','Gb4','Ab4','Bb4','B4'] },
+  { id:'Ges_dur', de:'Ges dur', jp:'変ト長調', kana:'ゲス・ドゥア',   en:'G♭ Major',  type:'major', sign:'flat',  count:6,
+    notes:['Ges','As','B','Ces','Des','Es','F'], leading:'F',
+    midi:['Gb3','Ab3','Bb3','B3','Db4','Eb4','F4','Gb4'] },
+  { id:'Des_dur', de:'Des dur', jp:'変ニ長調', kana:'デス・ドゥア',   en:'D♭ Major',  type:'major', sign:'flat',  count:5,
+    notes:['Des','Es','F','Ges','As','B','C'], leading:'C',
+    midi:['Db4','Eb4','F4','Gb4','Ab4','Bb4','C5','Db5'] },
+  { id:'As_dur',  de:'As dur',  jp:'変イ長調', kana:'アス・ドゥア',   en:'A♭ Major',  type:'major', sign:'flat',  count:4,
+    notes:['As','B','C','Des','Es','F','G'], leading:'G',
+    midi:['Ab3','Bb3','C4','Db4','Eb4','F4','G4','Ab4'] },
+  { id:'Es_dur',  de:'Es dur',  jp:'変ホ長調', kana:'エス・ドゥア',   en:'E♭ Major',  type:'major', sign:'flat',  count:3,
+    notes:['Es','F','G','As','B','C','D'], leading:'D',
+    midi:['Eb4','F4','G4','Ab4','Bb4','C5','D5','Eb5'] },
+  { id:'B_dur',   de:'B dur',   jp:'変ロ長調', kana:'ベー・ドゥア',   en:'B♭ Major',  type:'major', sign:'flat',  count:2,
+    notes:['B','C','D','Es','F','G','A'], leading:'A',
+    midi:['Bb3','C4','D4','Eb4','F4','G4','A4','Bb4'] },
+  { id:'F_dur',   de:'F dur',   jp:'ヘ長調',   kana:'エフ・ドゥア',   en:'F Major',   type:'major', sign:'flat',  count:1,
+    notes:['F','G','A','B','C','D','E'], leading:'E',
+    midi:['F4','G4','A4','Bb4','C5','D5','E5','F5'] },
+  // MINOR (moll) ※和声短音階
+  { id:'a_moll',   de:'a moll',   jp:'イ短調',   kana:'アー・モル',   en:'A minor',   type:'minor', sign:'none',  count:0,
+    notes:['A','H','C','D','E','F','Gis'], leading:'Gis',
+    midi:['A3','B3','C4','D4','E4','F4','Ab4','A4'] },
+  { id:'e_moll',   de:'e moll',   jp:'ホ短調',   kana:'エー・モル',   en:'E minor',   type:'minor', sign:'sharp', count:1,
+    notes:['E','Fis','G','A','H','C','Dis'], leading:'Dis',
+    midi:['E4','Gb4','G4','A4','B4','C5','Eb5','E5'] },
+  { id:'h_moll',   de:'h moll',   jp:'ロ短調',   kana:'ハー・モル',   en:'B minor',   type:'minor', sign:'sharp', count:2,
+    notes:['H','Cis','D','E','Fis','G','Ais'], leading:'Ais',
+    midi:['B3','Db4','D4','E4','Gb4','G4','Bb4','B4'] },
+  { id:'fis_moll', de:'fis moll', jp:'嬰ヘ短調', kana:'フィス・モル', en:'F♯ minor',  type:'minor', sign:'sharp', count:3,
+    notes:['Fis','Gis','A','H','Cis','D','Eis'], leading:'Eis',
+    midi:['Gb3','Ab3','A3','B3','Db4','D4','F4','Gb4'] },
+  { id:'cis_moll', de:'cis moll', jp:'嬰ハ短調', kana:'ツィス・モル', en:'C♯ minor',  type:'minor', sign:'sharp', count:4,
+    notes:['Cis','Dis','E','Fis','Gis','A','His'], leading:'His',
+    midi:['Db4','Eb4','E4','Gb4','Ab4','A4','C5','Db5'] },
+  { id:'gis_moll', de:'gis moll', jp:'嬰ト短調', kana:'ギス・モル',   en:'G♯ minor',  type:'minor', sign:'sharp', count:5,
+    notes:['Gis','Ais','H','Cis','Dis','E','Fisis'], leading:'Fisis',
+    midi:['Ab3','Bb3','B3','Db4','Eb4','E4','G4','Ab4'] },
+  { id:'es_moll',  de:'es moll',  jp:'変ホ短調', kana:'エス・モル',   en:'E♭ minor',  type:'minor', sign:'flat',  count:6,
+    notes:['Es','F','Ges','As','B','Ces','D'], leading:'D',
+    midi:['Eb3','F3','Gb3','Ab3','Bb3','B3','D4','Eb4'] },
+  { id:'b_moll',   de:'b moll',   jp:'変ロ短調', kana:'ベー・モル',   en:'B♭ minor',  type:'minor', sign:'flat',  count:5,
+    notes:['B','C','Des','Es','F','Ges','A'], leading:'A',
+    midi:['Bb3','C4','Db4','Eb4','F4','Gb4','A4','Bb4'] },
+  { id:'f_moll',   de:'f moll',   jp:'ヘ短調',   kana:'エフ・モル',   en:'F minor',   type:'minor', sign:'flat',  count:4,
+    notes:['F','G','As','B','C','Des','E'], leading:'E',
+    midi:['F3','G3','Ab3','Bb3','C4','Db4','E4','F4'] },
+  { id:'c_moll',   de:'c moll',   jp:'ハ短調',   kana:'ツェー・モル', en:'C minor',   type:'minor', sign:'flat',  count:3,
+    notes:['C','D','Es','F','G','As','H'], leading:'H',
+    midi:['C4','D4','Eb4','F4','G4','Ab4','B4','C5'] },
+  { id:'g_moll',   de:'g moll',   jp:'ト短調',   kana:'ゲー・モル',   en:'G minor',   type:'minor', sign:'flat',  count:2,
+    notes:['G','A','B','C','D','Es','Fis'], leading:'Fis',
+    midi:['G3','A3','Bb3','C4','D4','Eb4','Gb4','G4'] },
+  { id:'d_moll',   de:'d moll',   jp:'ニ短調',   kana:'デー・モル',   en:'D minor',   type:'minor', sign:'flat',  count:1,
+    notes:['D','E','F','G','A','B','Cis'], leading:'Cis',
+    midi:['D4','E4','F4','G4','A4','Bb4','Db5','D5'] },
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let state = {
+  accounts: [], // {id, name, icon, results: {scaleId: {correct, wrong}}}
+  currentAccount: null,
+  testConfig: { type: 'sign', scope: 'all' },
+  testQueue: [],
+  testIndex: 0,
+  testCorrect: 0,
+  answered: false,
+};
+
+function saveState() {
+  try {
+    const data = JSON.stringify({ accounts: state.accounts });
+    // 保存サイズが4MBを超える場合は写真データのみ警告（テスト結果は必ず保存）
+    if (data.length > 4 * 1024 * 1024) {
+      console.warn('Scala: データが大きすぎます。写真を削除してください。');
+      // 写真なしで再試行
+      const safe = {
+        accounts: state.accounts.map(a => a ? { ...a, photo: null } : a)
+      };
+      localStorage.setItem('scala_state', JSON.stringify(safe));
+    } else {
+      localStorage.setItem('scala_state', data);
+    }
+  } catch(e) {
+    // QuotaExceededError など
+    console.error('Scala: 保存に失敗しました', e);
+    try {
+      // 写真を除いて再試行
+      const safe = {
+        accounts: state.accounts.map(a => a ? { ...a, photo: null } : a)
+      };
+      localStorage.setItem('scala_state', JSON.stringify(safe));
+    } catch(e2) {
+      console.error('Scala: 緊急保存も失敗しました', e2);
+    }
+  }
+}
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('scala_state') || '{}');
+    state.accounts = s.accounts || [];
+  } catch(e) { state.accounts = []; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SCREEN NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active', 'exit');
+  });
+  const next = document.getElementById('screen-' + id);
+  if (!next) return;
+  setTimeout(() => { next.classList.add('active'); }, 10);
+
+  if (id === 'accounts') renderAccounts();
+  if (id === 'home') renderHome();
+  if (id === 'learn') renderLearn();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACCOUNTS
+// ═══════════════════════════════════════════════════════════
+let pendingSlot = -1;
+let selectedIcon = 'piano';
+let selectedPhoto = null;
+let isEditMode = false;
+
+function renderAccounts() {
+  const grid = document.getElementById('accounts-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const acc = state.accounts[i];
+    const card = document.createElement('div');
+
+    if (acc) {
+      card.className = 'account-card';
+      card.onclick = () => selectAccount(i);
+
+      // アバター（写真 or アイコン） — src は base64 のみ許可
+      const avatar = document.createElement('div');
+      avatar.className = 'account-avatar';
+      if (acc.photo && acc.photo.startsWith('data:image/')) {
+        const img = document.createElement('img');
+        img.src    = acc.photo;
+        img.alt    = ''; // alt に name を入れない（XSS対策）
+        img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;';
+        avatar.appendChild(img);
+      } else {
+        const icon = document.createElement('span');
+        icon.className   = 'ms avatar-icon';
+        icon.textContent = acc.icon || 'piano'; // textContent で安全に
+        avatar.appendChild(icon);
+      }
+
+      // 名前 — textContent で安全に
+      const nameEl = document.createElement('div');
+      nameEl.className   = 'account-name';
+      nameEl.textContent = acc.name;
+
+      // 編集ボタン
+      const editBtn = document.createElement('button');
+      editBtn.className = 'account-edit-btn';
+      editBtn.title     = '編集';
+      editBtn.onclick   = (e) => openEditAccount(e, i);
+      editBtn.innerHTML = '<span class="ms" style="font-size:18px;">edit</span>';
+
+      card.appendChild(avatar);
+      card.appendChild(nameEl);
+      card.appendChild(editBtn);
+
+    } else {
+      card.className = 'account-card empty';
+      card.onclick   = () => openCreateAccount(i);
+      card.innerHTML =
+        '<div class="account-avatar"><span class="ms ms-32" style="color:var(--text-dimmer);">add</span></div>' +
+        '<div style="color:var(--text-dimmer);font-size:14px;">新規作成</div>';
+    }
+
+    grid.appendChild(card);
+  }
+}
+
+function countMastered(acc) {
+  return SCALES.filter(s => {
+    const r = acc.results && acc.results[s.id];
+    return r && r.correct > 0 && r.wrong === 0;
+  }).length;
+}
+
+function selectAccount(i) {
+  state.currentAccount = state.accounts[i];
+  showScreen('home');
+}
+
+function openCreateAccount(slot) {
+  isEditMode = false;
+  pendingSlot = slot;
+  selectedIcon = 'piano';
+  selectedPhoto = null;
+  document.getElementById('modal-account-title').textContent = 'アカウント作成';
+  document.getElementById('modal-save-btn').textContent = '作成';
+  document.getElementById('account-name-input').value = '';
+  document.querySelectorAll('.avatar-opt').forEach(e => e.classList.remove('selected'));
+  document.querySelector('.avatar-opt[data-icon="piano"]').classList.add('selected');
+  resetPhotoUI();
+  switchModalTab('icon');
+  document.getElementById('modal-account').classList.add('open');
+}
+function openEditAccount(evt, slot) {
+  evt.stopPropagation();
+  const acc = state.accounts[slot];
+  if (!acc) return;
+  isEditMode = true;
+  pendingSlot = slot;
+  selectedPhoto = acc.photo || null;
+  selectedIcon = acc.icon || 'piano';
+  document.getElementById('modal-account-title').textContent = 'アカウント編集';
+  document.getElementById('modal-save-btn').textContent = '保存';
+  document.getElementById('account-name-input').value = acc.name;
+  document.querySelectorAll('.avatar-opt').forEach(e => e.classList.remove('selected'));
+  if (acc.photo) {
+    switchModalTab('photo');
+    showPhotoPreview(acc.photo);
+  } else {
+    switchModalTab('icon');
+    const target = document.querySelector(`.avatar-opt[data-icon="${selectedIcon}"]`);
+    if (target) target.classList.add('selected');
+    resetPhotoUI();
+  }
+  document.getElementById('modal-account').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-account').classList.remove('open');
+}
+function switchModalTab(tab) {
+  document.getElementById('tab-icon').classList.toggle('active', tab === 'icon');
+  document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
+  document.getElementById('panel-icon').classList.toggle('active', tab === 'icon');
+  document.getElementById('panel-photo').classList.toggle('active', tab === 'photo');
+}
+function selectAvatar(el) {
+  document.querySelectorAll('.avatar-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedIcon = el.dataset.icon;
+  selectedPhoto = null; // アイコン選択時は写真をリセット
+}
+function handlePhotoSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    // クロップ前に最大1200pxにリサイズしてメモリを節約
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1200;
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else        { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      openCrop(canvas.toDataURL('image/jpeg', 0.9));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── CROP ENGINE ───────────────────────────────────────────
+let cropImg = new Image();
+let cropOX = 0, cropOY = 0;          // 画像オフセット（canvas座標）
+let cropDragStart = null;
+let cropLastOX = 0, cropLastOY = 0;
+const CROP_SIZE = 280;               // 表示円のサイズ(px)
+
+function openCrop(src) {
+  cropImg = new Image();
+  cropImg.onload = () => {
+    // 初期ズーム：短辺が円にぴったり収まるサイズ
+    const minSide = Math.min(cropImg.naturalWidth, cropImg.naturalHeight);
+    const initScale = CROP_SIZE / minSide;
+    document.getElementById('crop-zoom').min   = initScale.toFixed(3);
+    document.getElementById('crop-zoom').value = initScale.toFixed(3);
+    // 画像中央を円中央に合わせる
+    cropOX = (CROP_SIZE - cropImg.naturalWidth  * initScale) / 2;
+    cropOY = (CROP_SIZE - cropImg.naturalHeight * initScale) / 2;
+    cropDraw();
+    document.getElementById('crop-overlay').classList.add('open');
+  };
+  cropImg.src = src;
+}
+function closeCrop() {
+  document.getElementById('crop-overlay').classList.remove('open');
+  document.getElementById('photo-file-input').value = '';
+}
+function cropScale() {
+  return parseFloat(document.getElementById('crop-zoom').value);
+}
+function cropDraw() {
+  const canvas = document.getElementById('crop-canvas');
+  const sc = cropScale();
+  const w  = cropImg.naturalWidth  * sc;
+  const h  = cropImg.naturalHeight * sc;
+  canvas.width  = w;
+  canvas.height = h;
+  canvas.style.width  = w + 'px';
+  canvas.style.height = h + 'px';
+  canvas.style.left   = cropOX + 'px';
+  canvas.style.top    = cropOY + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  ctx.drawImage(cropImg, 0, 0, w, h);
+}
+function clampOffset() {
+  // 円の外に画像が出ないようにクランプ
+  const sc = cropScale();
+  const w = cropImg.naturalWidth  * sc;
+  const h = cropImg.naturalHeight * sc;
+  cropOX = Math.min(0, Math.max(CROP_SIZE - w, cropOX));
+  cropOY = Math.min(0, Math.max(CROP_SIZE - h, cropOY));
+}
+function confirmCrop() {
+  const sc = cropScale();
+  // 円の領域(cropOX,cropOY起点)を元画像座標に変換してcanvasに描画
+  const out = document.createElement('canvas');
+  out.width  = CROP_SIZE;
+  out.height = CROP_SIZE;
+  const ctx = out.getContext('2d');
+  // 円形クリップ
+  ctx.beginPath();
+  ctx.arc(CROP_SIZE/2, CROP_SIZE/2, CROP_SIZE/2, 0, Math.PI*2);
+  ctx.clip();
+  // 画像を貼る（オフセット分ずらす）
+  ctx.drawImage(cropImg,
+    0, 0, cropImg.naturalWidth, cropImg.naturalHeight,
+    cropOX, cropOY,
+    cropImg.naturalWidth * sc, cropImg.naturalHeight * sc
+  );
+  const dataURL = out.toDataURL('image/jpeg', 0.85);
+  selectedPhoto = dataURL;
+  showPhotoPreview(dataURL);
+  document.getElementById('crop-overlay').classList.remove('open');
+}
+
+// ── ドラッグ（マウス & タッチ）──────────────────────────
+function cropPointerDown(e) {
+  e.preventDefault();
+  const pt = e.touches ? e.touches[0] : e;
+  cropDragStart = { x: pt.clientX, y: pt.clientY };
+  cropLastOX = cropOX; cropLastOY = cropOY;
+}
+function cropPointerMove(e) {
+  e.preventDefault();
+  if (!cropDragStart) return;
+  const pt = e.touches ? e.touches[0] : e;
+  cropOX = cropLastOX + (pt.clientX - cropDragStart.x);
+  cropOY = cropLastOY + (pt.clientY - cropDragStart.y);
+  clampOffset();
+  cropDraw();
+}
+function cropPointerUp(e) { cropDragStart = null; }
+
+// ── ピンチズーム ─────────────────────────────────────────
+let pinchDist0 = 0, pinchScale0 = 1;
+function cropTouchStart(e) {
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    pinchDist0  = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    pinchScale0 = cropScale();
+    cropDragStart = null; // ピンチ中はドラッグ無効
+  } else {
+    cropPointerDown(e);
+  }
+}
+function cropTouchMove(e) {
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    const slider = document.getElementById('crop-zoom');
+    const newSc  = Math.min(parseFloat(slider.max),
+                    Math.max(parseFloat(slider.min), pinchScale0 * (dist / pinchDist0)));
+    slider.value = newSc;
+    clampOffset();
+    cropDraw();
+  } else {
+    cropPointerMove(e);
+  }
+}
+
+// イベント登録は DOMContentLoaded 後に行う
+document.addEventListener('DOMContentLoaded', () => {
+  const wrap = document.getElementById('crop-wrap');
+  if (!wrap) return;
+  wrap.addEventListener('mousedown',  cropPointerDown);
+  wrap.addEventListener('mousemove',  cropPointerMove);
+  wrap.addEventListener('mouseup',    cropPointerUp);
+  wrap.addEventListener('mouseleave', cropPointerUp);
+  wrap.addEventListener('touchstart', cropTouchStart,  { passive: false });
+  wrap.addEventListener('touchmove',  cropTouchMove,   { passive: false });
+  wrap.addEventListener('touchend',   cropPointerUp);
+});
+function showPhotoPreview(src) {
+  const preview = document.getElementById('photo-preview');
+  const icon    = document.getElementById('photo-upload-icon');
+  const label   = document.getElementById('photo-upload-label');
+  preview.src = src;
+  preview.classList.add('show');
+  icon.style.display = 'none';
+  label.textContent = 'タップして変更';
+}
+function resetPhotoUI() {
+  const preview = document.getElementById('photo-preview');
+  const icon    = document.getElementById('photo-upload-icon');
+  const label   = document.getElementById('photo-upload-label');
+  preview.src = '';
+  preview.classList.remove('show');
+  icon.style.display = '';
+  label.textContent = 'タップして写真を選択';
+  document.getElementById('photo-file-input').value = '';
+}
+function saveAccount() {
+  const name = document.getElementById('account-name-input').value.trim();
+  if (!name) { document.getElementById('account-name-input').focus(); return; }
+  // 写真タブが選択中で写真がある場合は写真優先、なければアイコン
+  const activeTab = document.getElementById('tab-photo').classList.contains('active');
+  const usePhoto = activeTab && selectedPhoto;
+  if (isEditMode) {
+    state.accounts[pendingSlot].name = name;
+    state.accounts[pendingSlot].icon = usePhoto ? null : selectedIcon;
+    state.accounts[pendingSlot].photo = usePhoto ? selectedPhoto : null;
+    if (state.currentAccount && state.currentAccount.id === state.accounts[pendingSlot].id) {
+      state.currentAccount.name = name;
+      state.currentAccount.icon = state.accounts[pendingSlot].icon;
+      state.currentAccount.photo = state.accounts[pendingSlot].photo;
+    }
+  } else {
+    state.accounts[pendingSlot] = {
+      id: Date.now(), name,
+      icon: usePhoto ? null : selectedIcon,
+      photo: usePhoto ? selectedPhoto : null,
+      results: {}
+    };
+  }
+  saveState();
+  closeModal();
+  renderAccounts();
+}
+
+// ═══════════════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════════════
+function renderHome() {
+  if (!state.currentAccount) return;
+  document.getElementById('greeting-name').textContent = state.currentAccount.name;
+}
+
+// ═══════════════════════════════════════════════════════════
+// LEARN
+// ═══════════════════════════════════════════════════════════
+let currentFilter = 'all';
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLearn();
+}
+function renderLearn() {
+  const list = document.getElementById('scale-list');
+  list.innerHTML = '';
+  const filtered = SCALES.filter(s => {
+    if (currentFilter === 'major') return s.type === 'major';
+    if (currentFilter === 'minor') return s.type === 'minor';
+    if (currentFilter === 'sharp') return s.sign === 'sharp';
+    if (currentFilter === 'flat') return s.sign === 'flat';
+    return true;
+  });
+  filtered.forEach(s => {
+    const badgeCls = s.sign === 'none' ? 'badge-none' : s.sign === 'sharp' ? 'badge-sharp' : 'badge-flat';
+    const signChar = s.sign === 'none' ? '調号なし' : s.sign === 'sharp' ? `♯ × ${s.count}` : `♭ × ${s.count}`;
+
+    const wrapper = document.createElement('div');
+    wrapper.id = 'wrap-' + s.id;
+    wrapper.style.cssText = 'display:flex; flex-direction:column; border-radius:20px; overflow:hidden; flex-shrink:0;';
+
+    const item = document.createElement('div');
+    item.className = 'scale-item';
+    item.id = 'item-' + s.id;
+    item.style.borderRadius = '0';
+    item.innerHTML = `
+      <div class="scale-name-de ${s.type}">${s.de}</div>
+      <div class="scale-info">
+        <div class="scale-jp">${s.jp}</div>
+        <div class="scale-kana">${s.kana}</div>
+      </div>
+      <span class="scale-badge ${badgeCls}">${signChar}</span>
+      <span class="ms scale-expand" style="font-size:20px; color:var(--text-dimmer);">chevron_right</span>`;
+    item.onclick = () => toggleScale(s.id);
+
+    // ─── Detail panel ───
+    const noteChips = s.notes.map((n) => {
+      let cls = '';
+      if (s.leading && n === s.leading) cls = 'leading';
+      else if (n.includes('is')) cls = 'raised';
+      return `<span class="note-chip ${cls}">${n}</span>`;
+    }).join('');
+
+    // 用語解説
+    const typeGloss = s.type === 'major'
+      ? `<div class="gloss-row"><span class="gloss-term">Dur（ドゥア）</span><span class="gloss-def">長調。明るい響きの音階。主音から全・全・半・全・全・全・半の音程で構成される。</span></div>`
+      : `<div class="gloss-row"><span class="gloss-term">moll（モル）</span><span class="gloss-def">短調。哀愁のある響きの音階。ここでは第7音を半音上げた和声短音階を使用。</span></div>`;
+    const leadingGloss = s.leading
+      ? `<div class="gloss-row"><span class="gloss-term">導音（どうおん）</span><span class="gloss-def">主音の半音下の音（第7音）。主音へ強く解決しようとする性質を持つ。</span></div>`
+      : '';
+    const signGloss = s.sign !== 'none'
+      ? `<div class="gloss-row"><span class="gloss-term">調号（ちょうごう）</span><span class="gloss-def">楽譜の冒頭に書かれる♯や♭の記号。曲全体に渡って変化する音を示す。</span></div>`
+      : '';
+    const harmonicGloss = s.type === 'minor'
+      ? `<div class="gloss-row"><span class="gloss-term">和声短音階</span><span class="gloss-def">自然短音階の第7音を半音上げた形。導音を作ることで和音の機能を強める。</span></div>`
+      : '';
+
+    const detail = document.createElement('div');
+    detail.className = 'scale-detail';
+    detail.id = 'detail-' + s.id;
+    detail.style.borderRadius = '0';
+    detail.innerHTML = `
+      <div class="detail-kana-row">
+        <span class="detail-kana-text">${s.kana}</span>
+        <button class="play-btn" id="play-${s.id}" onclick="playScale('${s.id}', event)">
+          <span class="ms" style="font-size:18px;">play_arrow</span>
+          <span class="play-btn-label">音を聴く</span>
+        </button>
+      </div>
+      <div class="note-row-wrap">
+        <div class="detail-label">音列 ${s.type === 'minor' ? '（和声短音階）' : '（長音階）'}</div>
+        <div class="note-row">${noteChips}</div>
+        ${s.leading ? `<div class="leading-note-row"><span class="ms" style="font-size:13px; color:var(--accent);">arrow_forward</span> <span style="font-size:12px; color:var(--accent);">導音: ${s.leading}</span></div>` : ''}
+      </div>
+      <div class="gloss-section">
+        <div class="detail-label" style="margin-bottom:8px;">用語解説</div>
+        ${typeGloss}${harmonicGloss}${leadingGloss}${signGloss}
+      </div>`;
+
+    wrapper.appendChild(item);
+    wrapper.appendChild(detail);
+    list.appendChild(wrapper);
+  });
+}
+function toggleScale(id) {
+  const item    = document.getElementById('item-'   + id);
+  const detail  = document.getElementById('detail-' + id);
+  const wrapper = document.getElementById('wrap-'   + id);
+  const open    = detail.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.scale-item').forEach(i => i.classList.remove('expanded'));
+  document.querySelectorAll('.scale-detail').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('[id^="wrap-"]').forEach(w => {
+    w.classList.remove('expanded-wrap');
+    w.style.boxShadow = '';
+    w.style.border    = '';
+  });
+  if (!open) {
+    item.classList.add('expanded');
+    detail.classList.add('open');
+    wrapper.classList.add('expanded-wrap');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TEST CONFIG
+// ═══════════════════════════════════════════════════════════
+function selectConfig(group, val, el) {
+  const prefix = group === 'type' ? 'cfg-type-' : 'cfg-scope-';
+  document.querySelectorAll(`[id^="${prefix}"]`).forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.testConfig[group] = val;
+}
+
+function startTest() {
+  let pool = [...SCALES];
+  if (state.testConfig.scope === 'major') pool = pool.filter(s => s.type === 'major');
+  if (state.testConfig.scope === 'minor') pool = pool.filter(s => s.type === 'minor');
+  // Shuffle
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  state.testQueue = pool;
+  state.testIndex = 0;
+  state.testCorrect = 0;
+  state.answered = false;
+  document.getElementById('test-mode-label').textContent =
+    state.testConfig.type === 'sign' ? '調号を答える' : '音階名を答える';
+  showScreen('test');
+  renderQuestion();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TEST
+// ═══════════════════════════════════════════════════════════
+function renderQuestion() {
+  const q = state.testQueue[state.testIndex];
+  const total = state.testQueue.length;
+  state.answered = false;
+
+  document.getElementById('test-progress').innerHTML = `${state.testIndex + 1} <span>/ ${total}</span>`;
+  document.getElementById('progress-fill').style.width = `${(state.testIndex / total) * 100}%`;
+  document.getElementById('test-correct-count').textContent = state.testCorrect;
+  document.getElementById('feedback-popup').classList.remove('show');
+  document.getElementById('next-btn').style.display = '';
+
+  if (state.testConfig.type === 'sign') {
+    // Question: scale name → answer: sign count
+    document.getElementById('q-label').textContent = '音階名';
+    document.getElementById('q-main').textContent = q.de;
+    document.getElementById('q-main').className = 'question-main ' + q.type;
+    document.getElementById('q-sub').textContent = q.jp;
+    document.getElementById('q-type').textContent = q.type === 'major' ? '長調 (Dur)' : '短調 (moll) ／ 和声短音階';
+    document.getElementById('answer-type-label').textContent = '調号の数を選択';
+    renderSignChoices(q);
+  } else {
+    // Question: sign info → answer: scale name
+    const signStr = q.sign === 'none' ? '調号なし' : q.sign === 'sharp' ? `♯ が ${q.count} つ` : `♭ が ${q.count} つ`;
+    const typeStr = q.type === 'major' ? '長調 (Dur)' : '短調 (moll)';
+    document.getElementById('q-label').textContent = '調号と種類';
+    const icon = q.sign === 'sharp' ? '♯' : q.sign === 'flat' ? '♭' : '♮';
+    document.getElementById('q-main').textContent = q.sign === 'none' ? '♮' : `${icon}×${q.count}`;
+    document.getElementById('q-main').className = 'question-main ' + (q.sign === 'sharp' ? 'major' : q.sign === 'flat' ? 'minor' : '');
+    document.getElementById('q-sub').textContent = typeStr;
+    document.getElementById('q-type').textContent = '';
+    document.getElementById('answer-type-label').textContent = '音階名を選択';
+    renderNameChoices(q);
+  }
+}
+
+function renderSignChoices(q) {
+  const choices = document.getElementById('answer-choices');
+  choices.innerHTML = '';
+  // Generate wrong options: similar count signs
+  const allOptions = new Set();
+  allOptions.add(JSON.stringify({ sign: q.sign, count: q.count }));
+  // Add distractors
+  const distractors = [
+    { sign: 'none', count: 0 },
+    { sign: 'sharp', count: 1 }, { sign: 'sharp', count: 2 }, { sign: 'sharp', count: 3 },
+    { sign: 'sharp', count: 4 }, { sign: 'sharp', count: 5 }, { sign: 'sharp', count: 6 },
+    { sign: 'flat', count: 1 }, { sign: 'flat', count: 2 }, { sign: 'flat', count: 3 },
+    { sign: 'flat', count: 4 }, { sign: 'flat', count: 5 }, { sign: 'flat', count: 6 },
+  ].filter(d => !(d.sign === q.sign && d.count === q.count));
+  // Pick 3 nearby distractors
+  const shuffled = distractors.sort(() => Math.random() - 0.5).slice(0, 3);
+  const all = [{ sign: q.sign, count: q.count }, ...shuffled].sort(() => Math.random() - 0.5);
+
+  all.forEach(opt => {
+    const label = opt.sign === 'none' ? '調号なし' :
+                  opt.sign === 'sharp' ? `♯ × ${opt.count}` : `♭ × ${opt.count}`;
+    const isCorrect = opt.sign === q.sign && opt.count === q.count;
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = label;
+    btn.onclick = () => answerSign(isCorrect, btn, q);
+    choices.appendChild(btn);
+  });
+}
+
+function renderNameChoices(q) {
+  const choices = document.getElementById('answer-choices');
+  choices.innerHTML = '';
+  const pool = SCALES.filter(s => s.type === q.type && s.id !== q.id);
+  const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, 3);
+  const all = [q, ...shuffled].sort(() => Math.random() - 0.5);
+  all.forEach(opt => {
+    const isCorrect = opt.id === q.id;
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<strong>${opt.de}</strong><br><span style="font-size:12px;opacity:0.7;">${opt.jp}</span>`;
+    btn.onclick = () => answerSign(isCorrect, btn, q);
+    choices.appendChild(btn);
+  });
+}
+
+function showFeedbackPopup(isCorrect, msg, subLine1, subLine2) {
+  const popup = document.getElementById('feedback-popup');
+  const inner = document.getElementById('feedback-popup-inner');
+  const icon  = document.getElementById('feedback-popup-icon');
+  const msgEl = document.getElementById('feedback-popup-msg');
+  const subEl = document.getElementById('feedback-popup-sub');
+  const cls   = isCorrect ? 'ok' : 'ng';
+  inner.className = `feedback-popup-inner ${cls}`;
+  icon.className  = `feedback-popup-icon ${cls}`;
+  icon.innerHTML  = `<span class="ms">${isCorrect ? 'check_circle' : 'cancel'}</span>`;
+  msgEl.className = `feedback-popup-msg ${cls}`;
+  msgEl.textContent = msg;
+  if (subEl) {
+    if (subLine1 || subLine2) {
+      subEl.style.display = 'block';
+      subEl.innerHTML = [subLine1, subLine2].filter(Boolean)
+        .map(l => `<div>${l}</div>`).join('');
+    } else {
+      subEl.style.display = 'none';
+      subEl.innerHTML = '';
+    }
+  }
+  popup.classList.add('show');
+}
+
+function answerSign(isCorrect, btn, q) {
+  if (state.answered) return;
+  state.answered = true;
+  const acc = state.currentAccount;
+  if (!acc.results[q.id]) acc.results[q.id] = { correct: 0, wrong: 0 };
+
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach(b => { b.disabled = true; });
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    acc.results[q.id].correct++;
+    state.testCorrect++;
+    document.getElementById('test-correct-count').textContent = state.testCorrect;
+    showFeedbackPopup(true, '正解！', '');
+  } else {
+    btn.classList.add('wrong');
+    acc.results[q.id].wrong++;
+    // 調号がつく音名の順序（ドイツ音名）
+    const SHARP_ORDER = ['Fis','Cis','Gis','Dis','Ais','Eis','His'];
+    const FLAT_ORDER  = ['B','Es','As','Des','Ges','Ces','Fes'];
+    // ドイツ音名 → カタカナ対応表
+    const DE_TO_KANA = {
+      'Fis':'ファ♯','Cis':'ド♯','Gis':'ソ♯','Dis':'レ♯','Ais':'ラ♯','Eis':'ミ♯','His':'シ♯',
+      'B':'シ♭',  'Es':'ミ♭', 'As':'ラ♭', 'Des':'レ♭','Ges':'ソ♭','Ces':'ド♭','Fes':'ファ♭',
+    };
+    const noteLabel = n => `${n}（${DE_TO_KANA[n] || n}）`;
+
+    let correctLine1, correctLine2;
+    if (state.testConfig.type === 'sign') {
+      // 問題：音階名 → 正解：調号の数＋つく音
+      if (q.sign === 'none') {
+        correctLine1 = '正解：調号なし';
+        correctLine2 = '変化する音はありません';
+      } else {
+        const sym   = q.sign === 'sharp' ? '♯' : '♭';
+        const order = q.sign === 'sharp' ? SHARP_ORDER : FLAT_ORDER;
+        const affected = order.slice(0, q.count).map(noteLabel).join('、');
+        correctLine1 = `正解：${sym} × ${q.count}`;
+        correctLine2 = `${sym} がつく音：${affected}`;
+      }
+    } else {
+      // 問題：調号 → 正解：音階名＋調号の詳細
+      const sym   = q.sign === 'sharp' ? '♯' : q.sign === 'flat' ? '♭' : null;
+      const order = q.sign === 'sharp' ? SHARP_ORDER : FLAT_ORDER;
+      correctLine1 = `正解：${q.de}（${q.jp}）`;
+      if (q.sign === 'none') {
+        correctLine2 = '調号なし・変化する音なし';
+      } else {
+        const affected = order.slice(0, q.count).map(noteLabel).join('、');
+        correctLine2 = `${sym} がつく音：${affected}`;
+      }
+    }
+    showFeedbackPopup(false, '不正解', correctLine1, correctLine2);
+    // Highlight correct
+    allBtns.forEach(b => {
+      const isC = state.testConfig.type === 'sign'
+        ? (b.textContent.includes(q.sign === 'none' ? '調号なし' : q.sign === 'sharp' ? '♯' : '♭') && b.textContent.includes(q.count))
+        : b.innerHTML.includes(q.de);
+      if (isC) b.classList.add('reveal');
+    });
+  }
+  saveState();
+}
+
+function nextQuestion() {
+  document.getElementById('feedback-popup').classList.remove('show');
+  state.testIndex++;
+  if (state.testIndex >= state.testQueue.length) {
+    finishTest();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishTest() {
+  const total = state.testQueue.length;
+  const pct = Math.round((state.testCorrect / total) * 100);
+  document.getElementById('results-pct').textContent = pct + '%';
+  document.getElementById('r-correct').textContent = state.testCorrect;
+  document.getElementById('r-wrong').textContent = total - state.testCorrect;
+  document.getElementById('r-total').textContent = total;
+  showScreen('results');
+  setTimeout(() => {
+    const circ = 427;
+    document.getElementById('results-ring-circle').style.strokeDashoffset = circ - circ * (pct / 100);
+  }, 100);
+  if (state.testCorrect === total) {
+    setTimeout(showCelebration, 600);
+  }
+}
+
+function confirmExit() {
+  const started = state.testQueue.length > 0 &&
+    (state.testIndex > 0 || state.answered);
+  if (started) {
+    if (!confirm('テストを中断しますか？進捗は保存されています。')) return;
+  }
+  showScreen('home');
+}
+
+// ═══════════════════════════════════════════════════════════
+// CELEBRATION
+// ═══════════════════════════════════════════════════════════
+function showCelebration() {
+  const wrap = document.getElementById('confetti-wrap');
+  wrap.innerHTML = '';
+  const colors = ['#c8a96e','#6eb5c8','#c86e8a','#6ec88a','#e8c98e','#a86ec8'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (2 + Math.random() * 3) + 's';
+    p.style.animationDelay = (Math.random() * 2) + 's';
+    p.style.width = (6 + Math.random() * 8) + 'px';
+    p.style.height = (10 + Math.random() * 10) + 'px';
+    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+    wrap.appendChild(p);
+  }
+  document.getElementById('celebration').classList.add('show');
+}
+function hideCelebration() {
+  document.getElementById('celebration').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PIANO AUDIO — Pure Web Audio API synthesis (no CDN)
+// ═══════════════════════════════════════════════════════════
+let audioCtx = null;
+let currentPlayTimers = [];
+let isPlaying = false;
+let activeNodes = [];
+
+// MIDI note name → frequency (A4 = 440 Hz)
+const NOTE_FREQ = (() => {
+  const names = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+  const map = {};
+  for (let oct = 0; oct <= 8; oct++) {
+    names.forEach((n, i) => {
+      const midi = (oct + 1) * 12 + i;
+      map[n + oct] = 440 * Math.pow(2, (midi - 69) / 12);
+    });
+  }
+  return map;
+})();
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+/* ──────────────────────────────────────────────────
+   ピアノ音合成 — 改良版
+   ① 非調和性（inharmonicity）: 高次倍音をわずかに sharp に
+   ② ホワイトノイズバッファ: 本物のハンマー打鍵クリックを再現
+   ③ 周波数依存デケイ: 低音ほど長く鳴る
+   ④ ステレオパン: 低音=左、高音=右（グランドピアノの配置）
+   ⑤ 倍音ゲイン: 弦の張力モデルに基づいた自然な分布
+────────────────────────────────────────────────── */
+function synthPianoNote(freq, startTime, duration = 1.4) {
+  const ac = getAudioCtx();
+  const nodes = [];
+
+  // ① 周波数依存デケイ: 低音(200Hz)= ×2.2倍, 高音(1000Hz+)= ×1.0
+  const decayMult = Math.max(1.0, 2.2 - (freq - 200) / 500);
+  const actualDur = duration * decayMult;
+
+  // ④ ステレオパン (A4=440Hz を中央基準に左右±0.6)
+  const pan = ac.createStereoPanner
+    ? ac.createStereoPanner()
+    : { pan: { value: 0 }, connect: (n) => n };
+  if (pan.pan) pan.pan.value = Math.max(-0.7, Math.min(0.7, (Math.log2(freq / 440)) * -0.35));
+
+  // マスターゲイン + ADSR
+  const masterGain = ac.createGain();
+  const peak = 0.55;
+  masterGain.gain.setValueAtTime(0, startTime);
+  masterGain.gain.linearRampToValueAtTime(peak, startTime + 0.006);        // Attack (6ms)
+  masterGain.gain.exponentialRampToValueAtTime(peak * 0.55, startTime + 0.06); // Decay
+  masterGain.gain.exponentialRampToValueAtTime(peak * 0.38, startTime + 0.18); // Decay 2
+  masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + actualDur);  // Release
+
+  // ローパスフィルター（高音ほど倍音豊か、低音は丸く）
+  const filter = ac.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = Math.min(freq * 16, 16000);
+  filter.Q.value = 0.4;
+
+  // 接続チェーン: masterGain → filter → pan → destination
+  masterGain.connect(filter);
+  filter.connect(pan);
+  if (pan.connect) pan.connect(ac.destination);
+  else filter.connect(ac.destination);
+
+  // 短いルームリバーブ感（フィードバックディレイ）
+  const delay = ac.createDelay(0.1);
+  delay.delayTime.value = 0.028;
+  const delayGain = ac.createGain();
+  delayGain.gain.value = 0.09;
+  filter.connect(delay);
+  delay.connect(delayGain);
+  delayGain.connect(ac.destination);
+
+  // ① 非調和性係数 B（弦の剛性によるもの。低音=小さく, 高音=大きく）
+  const B = 0.00015 * Math.pow(freq / 440, 1.5);
+
+  // ⑤ 倍音列: [次数, 相対ゲイン]（グランドピアノの実測値に近い分布）
+  const harmonics = [
+    [1, 1.00],
+    [2, 0.48],
+    [3, 0.22],
+    [4, 0.10],
+    [5, 0.048],
+    [6, 0.022],
+    [7, 0.010],
+    [8, 0.005],
+    [9, 0.003],
+  ];
+
+  harmonics.forEach(([n, relGain]) => {
+    // ① 非調和周波数: f_n = n * f0 * sqrt(1 + B*n²)
+    const inharmFreq = n * freq * Math.sqrt(1 + B * n * n);
+    // 可聴域を超える場合はスキップ
+    if (inharmFreq > 20000) return;
+
+    // 高周波数域の音量ロールオフ（グランドピアノ特性）
+    const rolloff = Math.pow(Math.max(0.1, 1 - freq / 5000), 0.4);
+    const g = relGain * rolloff;
+
+    // 3本弦のユニゾン（実際のピアノは中高音域に3本の弦）
+    const unisonCount = freq > 300 ? 3 : freq > 150 ? 2 : 1;
+    const detuneSpread = freq > 300 ? 0.0012 : 0.0006;
+
+    for (let u = 0; u < unisonCount; u++) {
+      const osc = ac.createOscillator();
+      const oscGain = ac.createGain();
+      osc.type = n === 1 ? 'sine' : n <= 3 ? 'sine' : 'triangle';
+      // 各弦をわずかにデチューン
+      const detune = (u - (unisonCount - 1) / 2) * detuneSpread;
+      osc.frequency.value = inharmFreq * (1 + detune);
+      oscGain.gain.value = g / unisonCount;
+      osc.connect(oscGain);
+      oscGain.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + actualDur + 0.05);
+      nodes.push(osc);
+    }
+  });
+
+  // ② ホワイトノイズバッファでハンマー打鍵を再現
+  //    サンプル数=短く（20ms分）、一瞬だけ出してすぐ消す
+  try {
+    const bufLen = Math.floor(ac.sampleRate * 0.02);
+    const noiseBuffer = ac.createBuffer(1, bufLen, ac.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1);
+    const noiseSource = ac.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+
+    // ノイズはバンドパスフィルターで打鍵周波数帯に絞る
+    const bpf = ac.createBiquadFilter();
+    bpf.type = 'bandpass';
+    bpf.frequency.value = Math.min(freq * 3, 8000);
+    bpf.Q.value = 0.8;
+
+    const noiseGain = ac.createGain();
+    noiseGain.gain.setValueAtTime(0.18, startTime);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.018);
+
+    noiseSource.connect(bpf);
+    bpf.connect(noiseGain);
+    noiseGain.connect(ac.destination);
+    noiseSource.start(startTime);
+    noiseSource.stop(startTime + 0.022);
+    nodes.push(noiseSource);
+  } catch(e) { /* バッファ生成失敗時は無音で続行 */ }
+
+  activeNodes.push(...nodes);
+  return nodes;
+}
+
+function stopCurrentPlay() {
+  currentPlayTimers.forEach(t => clearTimeout(t));
+  currentPlayTimers = [];
+  isPlaying = false;
+  const ac = audioCtx;
+  activeNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+  activeNodes = [];
+}
+
+function playScale(scaleId, evt) {
+  evt.stopPropagation();
+  const scale = SCALES.find(s => s.id === scaleId);
+  if (!scale) return;
+
+  const btn = document.getElementById('play-' + scaleId);
+
+  // 演奏中なら停止
+  if (isPlaying) {
+    stopCurrentPlay();
+    document.querySelectorAll('.play-btn').forEach(b => {
+      b.classList.remove('playing');
+      b.querySelector('.play-btn-label').textContent = '音を聴く';
+      b.querySelector('.ms').textContent = 'play_arrow';
+    });
+    document.querySelectorAll('.note-chip').forEach(c => c.classList.remove('playing-note'));
+    return;
+  }
+
+  stopCurrentPlay();
+  isPlaying = true;
+
+  // ボタン状態更新
+  document.querySelectorAll('.play-btn').forEach(b => {
+    b.classList.remove('playing');
+    b.querySelector('.play-btn-label').textContent = '音を聴く';
+    b.querySelector('.ms').textContent = 'play_arrow';
+  });
+  if (btn) {
+    btn.classList.add('playing');
+    btn.querySelector('.play-btn-label').textContent = '演奏中';
+    btn.querySelector('.ms').textContent = 'stop';
+  }
+
+  try {
+    const ac = getAudioCtx();
+    const notes = [...scale.midi]; // 8音
+
+    // 4分音符 = 500ms間隔, 8分音符 = 250ms間隔
+    // duration は次の音との間隔より少し長くして自然な重なりを作る
+    const quarterInterval = 500;  // ms
+    const eighthInterval  = 250;  // ms
+    const quarterDuration = 0.65; // 秒（次の音まで500msなので150ms重なる）
+    const eighthDuration  = 0.32; // 秒（次の音まで250msなので70ms重なる）
+
+    // 各音符の「開始時刻（ms）」と「デュレーション」を事前計算
+    const schedule = [];
+    let cursor = 0;
+    notes.forEach((noteStr, i) => {
+      const isEdge = (i === 0 || i === notes.length - 1);
+      const dur  = isEdge ? quarterDuration : eighthDuration;
+      const step = isEdge ? quarterInterval : eighthInterval;
+      schedule.push({ noteStr, startMs: cursor, dur });
+      cursor += step;
+    });
+
+    schedule.forEach(({ noteStr, startMs, dur }, i) => {
+      const freq = NOTE_FREQ[noteStr];
+      if (!freq) return;
+
+      const t1 = setTimeout(() => {
+        const startTime = ac.currentTime;
+        synthPianoNote(freq, startTime, dur);
+
+        // 音名チップをハイライト
+        const chips = document.querySelectorAll(`#detail-${scaleId} .note-chip`);
+        chips.forEach(c => c.classList.remove('playing-note'));
+        if (chips[i]) chips[i].classList.add('playing-note');
+      }, startMs);
+      currentPlayTimers.push(t1);
+    });
+
+    // 終了処理（最後の音の開始 + その duration）
+    const lastEntry = schedule[schedule.length - 1];
+    const totalMs = lastEntry.startMs + lastEntry.dur * 1000 + 200;
+    const resetT = setTimeout(() => {
+      isPlaying = false;
+      activeNodes = [];
+      if (btn) {
+        btn.classList.remove('playing');
+        btn.querySelector('.play-btn-label').textContent = '音を聴く';
+        btn.querySelector('.ms').textContent = 'play_arrow';
+      }
+      document.querySelectorAll('.note-chip').forEach(c => c.classList.remove('playing-note'));
+    }, totalMs);
+    currentPlayTimers.push(resetT);
+
+  } catch(e) {
+    isPlaying = false;
+    if (btn) {
+      btn.classList.remove('playing');
+      btn.querySelector('.play-btn-label').textContent = '音を聴く';
+      btn.querySelector('.ms').textContent = 'play_arrow';
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+loadState();
+renderAccounts();
+
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
