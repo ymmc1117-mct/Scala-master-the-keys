@@ -308,16 +308,19 @@
     .avatar-picker {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
+      gap: 8px;
     }
     .avatar-opt {
-      width: 52px; height: 52px; border-radius: 50%;
+      aspect-ratio: 1;
+      width: 100%;
+      border-radius: 50%;
       border: 2px solid rgba(255,255,255,0.1);
       background: var(--surface2);
-      font-size: 22px; cursor: pointer;
+      cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: all 0.2s;
     }
+    .avatar-opt .ms { font-size: clamp(20px, 5vw, 28px); }
     .avatar-opt.selected { border-color: var(--accent); background: rgba(200,169,110,0.15); }
 
     /* ─── MODAL TABS ─── */
@@ -342,18 +345,29 @@
       color: var(--text);
       box-shadow: var(--shadow-sm);
     }
-    .modal-tab-panel { display: none; }
-    .modal-tab-panel.active { display: block; }
+    /* タブコンテンツエリア：高さ固定でレイアウトシフト防止 */
+    .modal-tab-body {
+      position: relative;
+      height: 160px;
+    }
+    .modal-tab-panel {
+      display: none;
+      position: absolute; inset: 0;
+      overflow-y: auto;
+      flex-direction: column;
+    }
+    .modal-tab-panel.active { display: flex; }
 
     /* ─── PHOTO UPLOAD ─── */
     .photo-upload-area {
       border: 2px dashed rgba(255,255,255,0.15);
       border-radius: var(--radius-lg);
-      padding: 28px 20px;
+      padding: 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+      height: 100%;
     }
     .photo-upload-area:active { border-color: var(--accent); background: rgba(200,169,110,0.05); }
     .photo-preview {
@@ -785,36 +799,44 @@
       border-radius: var(--radius-lg);
       border: 1px solid rgba(255,255,255,0.08);
       box-shadow: var(--shadow-lg);
-      padding: 24px 28px;
-      display: flex; align-items: center; gap: 16px;
-      pointer-events: none;   /* 非表示時はクリック無効 */
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
       transform: translateY(24px);
       transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .feedback-popup.show .feedback-popup-inner {
       transform: translateY(0);
-      pointer-events: all;    /* 表示時だけクリック有効 */
+      pointer-events: all;
     }
     .feedback-popup-inner.ok { border-color: rgba(110,200,138,0.3); }
     .feedback-popup-inner.ng { border-color: rgba(200,110,110,0.3); }
-    .feedback-popup-icon .ms {
-      font-size: 36px;
+    /* 上段：アイコン + メッセージ + ボタン横並び */
+    .feedback-popup-top {
+      display: flex; align-items: center; gap: 12px;
     }
+    .feedback-popup-icon .ms { font-size: 28px; }
     .feedback-popup-icon.ok .ms { color: var(--success); }
     .feedback-popup-icon.ng .ms { color: var(--error); }
     .feedback-popup-msg {
-      font-size: 18px; font-weight: 600;
+      font-size: 18px; font-weight: 600; flex: 1;
     }
     .feedback-popup-msg.ok { color: var(--success); }
     .feedback-popup-msg.ng { color: var(--error); }
-    .feedback-popup-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    /* 下段：詳細テキスト（全幅） */
+    .feedback-popup-body { display: flex; flex-direction: column; gap: 2px; }
     .feedback-popup-sub {
       font-size: 12px; color: var(--text-dim);
       display: none;
       line-height: 1.7;
+      padding-top: 4px;
+      border-top: 1px solid rgba(255,255,255,0.06);
     }
     .feedback-popup-sub div:first-child {
       font-weight: 500; color: var(--text);
+      margin-bottom: 2px;
     }
     .feedback-next-btn { white-space: nowrap; flex-shrink: 0; }
 
@@ -1041,6 +1063,99 @@
       .results-stats { flex-wrap: wrap; justify-content: center; }
       .celebration-title { font-size: 34px; }
     }
+
+    /* ─── iPad Air 第4世代 (820px〜) ─── */
+    @media (min-width: 768px) {
+      .screen { padding: 48px 40px; }
+
+      /* スプラッシュ */
+      #screen-splash .logo { font-size: 96px; }
+      #screen-splash .tagline { font-size: 18px; margin-bottom: 56px; }
+
+      /* アカウント */
+      .accounts-grid { max-width: 600px; gap: 16px; }
+      .account-card { padding: 24px 28px; gap: 20px; }
+      .account-avatar { width: 72px; height: 72px; }
+      .avatar-icon { font-size: 36px; }
+      .account-name { font-size: 18px; }
+
+      /* ホーム */
+      .greeting { font-size: 42px; }
+      .home-header { max-width: 800px; }
+      .mode-cards { max-width: 800px; gap: 24px; }
+      .mode-card { padding: 40px 36px; }
+      .mode-title { font-size: 28px; }
+      .mode-desc { font-size: 15px; }
+
+      /* 学習 */
+      .nav-bar { padding-bottom: 24px; }
+      .filter-btn { padding: 10px 24px; font-size: 14px; }
+      .scale-item { padding: 22px 28px; gap: 20px; }
+      .scale-name-de { font-size: 26px; min-width: 140px; }
+      .scale-jp { font-size: 15px; }
+      .scale-kana { font-size: 13px; }
+      .scale-badge { font-size: 13px; padding: 5px 14px; }
+      .note-chip { font-size: 16px; padding: 8px 18px; }
+      .detail-kana-text { font-size: 20px; }
+      .play-btn { padding: 10px 22px; font-size: 14px; }
+      .gloss-term { font-size: 13px; min-width: 110px; }
+      .gloss-def { font-size: 13px; }
+
+      /* テスト設定 */
+      .config-options { max-width: 680px; }
+      .config-card { padding: 24px 28px; gap: 20px; }
+      .config-title { font-size: 18px; }
+      .config-desc { font-size: 13px; }
+      .config-icon { font-size: 0; }
+      .config-icon .ms { font-size: 32px !important; }
+      .scope-row { max-width: 680px; gap: 12px; }
+      .scope-card { padding: 20px 16px; gap: 10px; }
+      .scope-card-label { font-size: 15px; }
+
+      /* テスト本体 */
+      .test-wrap { max-width: 800px; gap: 28px; }
+      .progress-count { font-size: 30px; }
+      .question-card { padding: 48px 40px; }
+      .question-main { font-size: 68px; }
+      .question-main.none { font-size: 36px; }
+      .question-sub { font-size: 20px; }
+      .question-type { font-size: 15px; }
+      .answer-type { font-size: 15px; }
+      .answer-choices { gap: 14px; }
+      .choice-btn { padding: 24px 20px; font-size: 17px; }
+      .feedback-text { font-size: 18px; }
+
+      /* フィードバックポップアップ */
+      .feedback-popup { padding: 0 32px 48px; }
+      .feedback-popup-inner { padding: 28px 36px; gap: 14px; }
+      .feedback-popup-msg { font-size: 22px; }
+      .feedback-popup-sub { font-size: 14px; }
+
+      /* 結果 */
+      .results-ring { width: 200px; height: 200px; }
+      .results-ring svg { width: 200px; height: 200px; }
+      .results-pct { font-size: 46px; }
+      .results-pct-label { font-size: 14px; }
+      .results-stats { gap: 28px; }
+      .r-stat { padding: 20px 32px; }
+      .r-stat-val { font-size: 36px; }
+      .r-stat-label { font-size: 14px; }
+
+      /* モーダル */
+      .modal { width: 480px; padding: 44px 40px; gap: 24px; }
+      .modal h2 { font-size: 26px; }
+      .input-field { font-size: 18px; padding: 16px 20px; }
+      .avatar-picker { gap: 14px; }
+      .avatar-opt .ms { font-size: 32px; }
+      .modal-tab-body { height: 280px; }
+
+      /* お祝い */
+      .celebration-title { font-size: 72px; }
+      .celebration-sub { font-size: 22px; }
+
+      /* nav */
+      .nav-title { font-size: 22px; }
+    }
   </style>
 </head>
 <body>
@@ -1194,12 +1309,14 @@
 <!-- ─── FEEDBACK POPUP ─── -->
 <div class="feedback-popup" id="feedback-popup">
   <div class="feedback-popup-inner" id="feedback-popup-inner">
-    <div class="feedback-popup-icon" id="feedback-popup-icon"></div>
-    <div class="feedback-popup-body">
+    <div class="feedback-popup-top">
+      <div class="feedback-popup-icon" id="feedback-popup-icon"></div>
       <div class="feedback-popup-msg" id="feedback-popup-msg"></div>
+      <button class="btn btn-primary feedback-next-btn" id="next-btn" onclick="nextQuestion()">次の問題</button>
+    </div>
+    <div class="feedback-popup-body">
       <div class="feedback-popup-sub" id="feedback-popup-sub"></div>
     </div>
-    <button class="btn btn-primary feedback-next-btn" id="next-btn" onclick="nextQuestion()">次の問題</button>
   </div>
 </div>
 
@@ -1257,29 +1374,31 @@
         <span class="ms" style="font-size:15px; vertical-align:middle;">photo_camera</span> 写真
       </button>
     </div>
-    <div class="modal-tab-panel active" id="panel-icon">
-      <div class="avatar-picker" id="avatar-picker">
-        <!-- 音楽系 -->
-        <div class="avatar-opt selected" data-icon="piano"         data-color="var(--accent)" onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--accent);">piano</span></div>
-        <div class="avatar-opt"          data-icon="music_note"    data-color="var(--sharp)"  onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">music_note</span></div>
-        <div class="avatar-opt"          data-icon="headphones"    data-color="#a78bfa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#a78bfa;">headphones</span></div>
-        <div class="avatar-opt"          data-icon="mic"           data-color="#f472b6"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f472b6;">mic</span></div>
-        <div class="avatar-opt"          data-icon="queue_music"   data-color="var(--sharp)"  onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">queue_music</span></div>
-        <!-- おもしろ系 -->
-        <div class="avatar-opt"          data-icon="rocket_launch" data-color="#60a5fa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">rocket_launch</span></div>
-        <div class="avatar-opt"          data-icon="mood"          data-color="#fde047"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#fde047;">mood</span></div>
-        <div class="avatar-opt"          data-icon="local_fire_department" data-color="#f87171" onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f87171;">local_fire_department</span></div>
-        <div class="avatar-opt"          data-icon="pets"          data-color="#d4a27f"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#d4a27f;">pets</span></div>
-        <div class="avatar-opt"          data-icon="skateboarding" data-color="#60a5fa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">skateboarding</span></div>
+    <div class="modal-tab-body">
+      <div class="modal-tab-panel active" id="panel-icon">
+        <div class="avatar-picker" id="avatar-picker">
+          <!-- 音楽系 -->
+          <div class="avatar-opt selected" data-icon="piano"         data-color="var(--accent)" onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--accent);">piano</span></div>
+          <div class="avatar-opt"          data-icon="music_note"    data-color="var(--sharp)"  onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">music_note</span></div>
+          <div class="avatar-opt"          data-icon="headphones"    data-color="#a78bfa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#a78bfa;">headphones</span></div>
+          <div class="avatar-opt"          data-icon="mic"           data-color="#f472b6"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f472b6;">mic</span></div>
+          <div class="avatar-opt"          data-icon="queue_music"   data-color="var(--sharp)"  onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">queue_music</span></div>
+          <!-- おもしろ系 -->
+          <div class="avatar-opt"          data-icon="rocket_launch" data-color="#60a5fa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">rocket_launch</span></div>
+          <div class="avatar-opt"          data-icon="mood"          data-color="#fde047"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#fde047;">mood</span></div>
+          <div class="avatar-opt"          data-icon="local_fire_department" data-color="#f87171" onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f87171;">local_fire_department</span></div>
+          <div class="avatar-opt"          data-icon="pets"          data-color="#d4a27f"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#d4a27f;">pets</span></div>
+          <div class="avatar-opt"          data-icon="skateboarding" data-color="#60a5fa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">skateboarding</span></div>
+        </div>
       </div>
-    </div>
-    <div class="modal-tab-panel" id="panel-photo">
-      <div class="photo-upload-area" onclick="document.getElementById('photo-file-input').click()">
-        <img class="photo-preview" id="photo-preview" src="" alt="プレビュー" />
-        <span class="ms ms-40" style="color:var(--text-dimmer);" id="photo-upload-icon">add_photo_alternate</span>
-        <div style="font-size:13px; color:var(--text-dim);" id="photo-upload-label">タップして写真を選択</div>
+      <div class="modal-tab-panel" id="panel-photo">
+        <div class="photo-upload-area" style="flex:1; justify-content:center;" onclick="document.getElementById('photo-file-input').click()">
+          <img class="photo-preview" id="photo-preview" src="" alt="プレビュー" />
+          <span class="ms ms-40" style="color:var(--text-dimmer);" id="photo-upload-icon">add_photo_alternate</span>
+          <div style="font-size:13px; color:var(--text-dim);" id="photo-upload-label">タップして写真を選択</div>
+        </div>
+        <input type="file" id="photo-file-input" accept="image/*" style="display:none;" onchange="handlePhotoSelect(this)" />
       </div>
-      <input type="file" id="photo-file-input" accept="image/*" style="display:none;" onchange="handlePhotoSelect(this)" />
     </div>
     <input class="input-field" type="text" id="account-name-input" placeholder="名前を入力…" maxlength="12" />
     <div style="display:flex; gap:10px;">
@@ -1525,7 +1644,6 @@ function renderAccounts() {
         <span class="ms" style="font-size:36px; color:var(--accent);">piano</span>
       </div>
       <div class="accounts-empty-title">はじめましょう</div>
-      <div class="accounts-empty-desc">アカウントを作成して、音階の練習をスタートしましょう。最大3人まで登録できます。</div>
       <button class="btn btn-primary" style="min-width:200px; margin-top:4px;" onclick="openCreateAccount(0)">
         <span class="ms" style="font-size:18px; vertical-align:middle;">add</span>
         アカウントを作成
@@ -2143,6 +2261,41 @@ function showFeedbackPopup(isCorrect, msg, subLine1, subLine2) {
   popup.classList.add('show');
 }
 
+function buildAnswerDetail(q) {
+  const SHARP_ORDER = ['Fis','Cis','Gis','Dis','Ais','Eis','His'];
+  const FLAT_ORDER  = ['B','Es','As','Des','Ges','Ces','Fes'];
+  const DE_TO_KANA = {
+    'Fis':'ファ♯','Cis':'ド♯','Gis':'ソ♯','Dis':'レ♯','Ais':'ラ♯','Eis':'ミ♯','His':'シ♯',
+    'B':'シ♭','Es':'ミ♭','As':'ラ♭','Des':'レ♭','Ges':'ソ♭','Ces':'ド♭','Fes':'ファ♭',
+  };
+  const noteLabel = n => `${n}（${DE_TO_KANA[n] || n}）`;
+
+  let line1, line2;
+  if (state.testConfig.type === 'sign') {
+    if (q.sign === 'none') {
+      line1 = `${q.de}（${q.jp}）`;
+      line2 = '調号なし・変化する音なし';
+    } else {
+      const sym     = q.sign === 'sharp' ? '♯' : '♭';
+      const order   = q.sign === 'sharp' ? SHARP_ORDER : FLAT_ORDER;
+      const affected = order.slice(0, q.count).map(noteLabel).join('、');
+      line1 = `${q.de}（${q.jp}）→ ${sym} × ${q.count}`;
+      line2 = `${sym} がつく音：${affected}`;
+    }
+  } else {
+    const sym   = q.sign === 'sharp' ? '♯' : q.sign === 'flat' ? '♭' : null;
+    const order = q.sign === 'sharp' ? SHARP_ORDER : FLAT_ORDER;
+    line1 = `${q.de}（${q.jp}）`;
+    if (q.sign === 'none') {
+      line2 = '調号なし・変化する音なし';
+    } else {
+      const affected = order.slice(0, q.count).map(noteLabel).join('、');
+      line2 = `${sym} がつく音：${affected}`;
+    }
+  }
+  return { line1, line2 };
+}
+
 function answerSign(isCorrect, btn, q) {
   if (state.answered) return;
   state.answered = true;
@@ -2150,50 +2303,17 @@ function answerSign(isCorrect, btn, q) {
   const allBtns = document.querySelectorAll('.choice-btn');
   allBtns.forEach(b => { b.disabled = true; });
 
+  const { line1, line2 } = buildAnswerDetail(q);
+
   if (isCorrect) {
     btn.classList.add('correct');
     state.testCorrect++;
     document.getElementById('test-correct-count').textContent = state.testCorrect;
-    showFeedbackPopup(true, '正解！', '');
+    showFeedbackPopup(true, '正解！', line1, line2);
   } else {
     btn.classList.add('wrong');
-    // 調号がつく音名の順序（ドイツ音名）
-    const SHARP_ORDER = ['Fis','Cis','Gis','Dis','Ais','Eis','His'];
-    const FLAT_ORDER  = ['B','Es','As','Des','Ges','Ces','Fes'];
-    // ドイツ音名 → カタカナ対応表
-    const DE_TO_KANA = {
-      'Fis':'ファ♯','Cis':'ド♯','Gis':'ソ♯','Dis':'レ♯','Ais':'ラ♯','Eis':'ミ♯','His':'シ♯',
-      'B':'シ♭',  'Es':'ミ♭', 'As':'ラ♭', 'Des':'レ♭','Ges':'ソ♭','Ces':'ド♭','Fes':'ファ♭',
-    };
-    const noteLabel = n => `${n}（${DE_TO_KANA[n] || n}）`;
-
-    let correctLine1, correctLine2;
-    if (state.testConfig.type === 'sign') {
-      // 問題：音階名 → 正解：調号の数＋つく音
-      if (q.sign === 'none') {
-        correctLine1 = '正解：調号なし';
-        correctLine2 = '変化する音はありません';
-      } else {
-        const sym   = q.sign === 'sharp' ? '♯' : '♭';
-        const order = q.sign === 'sharp' ? SHARP_ORDER : FLAT_ORDER;
-        const affected = order.slice(0, q.count).map(noteLabel).join('、');
-        correctLine1 = `正解：${sym} × ${q.count}`;
-        correctLine2 = `${sym} がつく音：${affected}`;
-      }
-    } else {
-      // 問題：調号 → 正解：音階名＋調号の詳細
-      const sym   = q.sign === 'sharp' ? '♯' : q.sign === 'flat' ? '♭' : null;
-      const order = q.sign === 'sharp' ? SHARP_ORDER : FLAT_ORDER;
-      correctLine1 = `正解：${q.de}（${q.jp}）`;
-      if (q.sign === 'none') {
-        correctLine2 = '調号なし・変化する音なし';
-      } else {
-        const affected = order.slice(0, q.count).map(noteLabel).join('、');
-        correctLine2 = `${sym} がつく音：${affected}`;
-      }
-    }
-    showFeedbackPopup(false, '不正解', correctLine1, correctLine2);
-    // Highlight correct
+    showFeedbackPopup(false, '不正解', line1, line2);
+    // 正解の選択肢をハイライト
     allBtns.forEach(b => {
       const isC = state.testConfig.type === 'sign'
         ? (b.textContent.includes(q.sign === 'none' ? '調号なし' : q.sign === 'sharp' ? '♯' : '♭') && b.textContent.includes(q.count))
@@ -2409,8 +2529,8 @@ function playScale(scaleId, evt) {
 
   const quarterInterval = 500;
   const eighthInterval  = 250;
-  const quarterDuration = 1.4;
-  const eighthDuration  = 0.7;
+  const quarterDuration = 0.55;
+  const eighthDuration  = 0.28;
 
   const notes = [...scale.midi];
   const schedule = [];
