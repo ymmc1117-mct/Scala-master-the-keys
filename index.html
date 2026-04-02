@@ -119,7 +119,25 @@
       overflow: hidden;
     }
     #screen-test {
+      overflow: hidden;   /* スクロールはtest-wrapが担う */
+      padding: 0;         /* paddingを除去して全幅を確保 */
+      justify-content: flex-start;
+      gap: 0;
+    }
+    #screen-test > .nav-bar {
+      flex-shrink: 0;
+      width: 100%;
+      padding: 12px 24px 12px;
+      box-sizing: border-box;
+      background: var(--bg);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    #screen-test .test-wrap {
+      flex: 1;
       overflow-y: auto;
+      width: 100%;
+      padding: 16px 24px 48px;
+      box-sizing: border-box;
     }
 
     /* ─── COMMON ─── */
@@ -622,6 +640,77 @@
     }
     .detail-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dimmer); margin-top: 10px; }
 
+    /* ─── PIANO KEYBOARD BAR ─── */
+    .piano-bar {
+      position: relative;
+      width: 100%; max-width: 800px;
+      height: 76px;
+      margin-bottom: 12px;  /* フィルターバーとのギャップ */
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .piano-white-key {
+      position: absolute;
+      top: 0; height: 100%;
+      background: linear-gradient(to bottom, #e8e4dd, #f5f1ea);
+      border: 1.5px solid rgba(0,0,0,0.18);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      cursor: pointer;
+      z-index: 1;
+      display: flex; flex-direction: column;
+      justify-content: flex-end; align-items: center;
+      padding-bottom: 5px;
+      transition: background 0.1s, transform 0.08s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.25), inset 0 -2px 4px rgba(0,0,0,0.08);
+    }
+    .piano-white-key:active,
+    .piano-white-key.playing {
+      background: linear-gradient(to bottom, #e8c96e, #f5e09a);
+      transform: scaleY(0.98);
+      transform-origin: top center;
+    }
+    .piano-black-key {
+      position: absolute;
+      top: 0; height: 62%;
+      background: linear-gradient(to bottom, #2a2420, #1a1410);
+      border-radius: 0 0 5px 5px;
+      cursor: pointer;
+      z-index: 2;
+      display: flex; flex-direction: column;
+      justify-content: flex-end; align-items: center;
+      padding-bottom: 4px;
+      box-shadow: 2px 4px 8px rgba(0,0,0,0.5), inset 0 -2px 3px rgba(0,0,0,0.3);
+      transition: background 0.1s, transform 0.08s;
+    }
+    .piano-black-key:active,
+    .piano-black-key.playing {
+      background: linear-gradient(to bottom, #c8a96e, #e8c98e);
+      transform: scaleY(0.97);
+      transform-origin: top center;
+    }
+    .piano-key-de {
+      font-family: 'DM Serif Display', serif;
+      font-size: 11px;
+      line-height: 1.1; text-align: center;
+    }
+    .piano-white-key .piano-key-de { color: #3a3028; }
+    .piano-black-key .piano-key-de { color: rgba(255,255,255,0.55); font-size: 9px; }
+    .piano-key-kana {
+      font-size: 8px; text-align: center; line-height: 1.1; margin-top: 1px;
+    }
+    .piano-white-key .piano-key-kana { color: rgba(50,40,30,0.5); }
+    .piano-black-key .piano-key-kana { display:none; }
+
+    /* iPad: 高くして余裕を持たせる */
+    @media (min-width: 768px) {
+      .piano-bar { height: 110px; margin-bottom: 16px; }
+      .piano-white-key { border-radius: 0 0 8px 8px; }
+      .piano-black-key { border-radius: 0 0 6px 6px; }
+      .piano-key-de { font-size: 13px; }
+      .piano-white-key .piano-key-kana { font-size: 9px; }
+    }
+
     /* ─── Detail: kana + play button row ─── */
     .detail-kana-row {
       display: flex; align-items: center; justify-content: space-between;
@@ -698,7 +787,7 @@
     }
 
     /* ─── SCREEN 5: TEST ─── */
-    #screen-test { gap: 0; justify-content: flex-start; padding-top: 24px; }
+    /* テスト画面のgap/padding-topは個別管理 */
     .test-wrap {
       width: 100%; max-width: 700px;
       display: flex; flex-direction: column; gap: 20px;
@@ -960,6 +1049,32 @@
     .r-stat-val { font-size: 28px; font-weight: 600; }
     .r-stat-label { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
 
+    .ear-play-btn {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: 17px; padding: 18px;
+      border-radius: var(--radius-pill);
+    }
+    .ear-grid-label {
+      font-size: 12px; color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+    .ear-choices-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+    }
+    .ear-choice-btn {
+      padding: 10px 8px;
+      font-size: 13px;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .ear-btn-jp   { font-size: 11px; opacity: 0.75; }
+    .ear-btn-kana { font-size: 10px; color: var(--text-dimmer); }
+    .ear-btn-sign { font-size: 10px; font-weight: 600; margin-top: 1px; }
+
     /* ─── CELEBRATION ─── */
     .celebration {
       position: fixed; inset: 0;
@@ -1129,6 +1244,8 @@
 
       /* テスト本体 */
       .test-wrap { max-width: 800px; gap: 28px; }
+      #screen-test > .nav-bar { padding: 16px 40px 16px; }
+      #screen-test .test-wrap { padding: 24px 40px 64px; }
       .progress-count { font-size: 30px; }
       .question-card { padding: 48px 40px; }
       .question-main { font-size: 68px; }
@@ -1137,6 +1254,12 @@
       .question-type { font-size: 15px; }
       .answer-type { font-size: 15px; }
       .answer-choices { gap: 14px; }
+      /* 耳当てテスト iPad専用 */
+      .ear-play-btn { font-size: 18px; padding: 16px 32px; }
+      .ear-choices-grid { grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+      .ear-choice-btn { padding: 10px 8px; font-size: 16px; gap: 2px; }
+      .ear-btn-jp { font-size: 12px; }
+      .ear-btn-sign { font-size: 11px; }
       .choice-btn { padding: 24px 20px; font-size: 17px; }
       .feedback-text { font-size: 18px; }
 
@@ -1227,25 +1350,29 @@
      SCREEN: LEARN
 ════════════════════════════════════ -->
 <div id="screen-learn" class="screen">
-  <div class="nav-bar" style="max-width:800px; width:100%;">
+  <div class="nav-bar">
     <button class="btn btn-ghost" onclick="showScreen('home')" style="padding:8px;"><span class="ms ms-28" style="color:var(--accent);">home</span></button>
     <div class="nav-title">学習</div>
   </div>
-  <div class="filter-bar" id="filter-bar" style="max-width:800px; width:100%;">
-    <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">すべて</button>
-    <button class="filter-btn" data-filter="major" onclick="setFilter('major',this)">長調 Major</button>
-    <button class="filter-btn" data-filter="minor" onclick="setFilter('minor',this)">短調 Minor</button>
-    <button class="filter-btn" data-filter="sharp" onclick="setFilter('sharp',this)">♯系</button>
-    <button class="filter-btn" data-filter="flat" onclick="setFilter('flat',this)">♭系</button>
+  <!-- ピアノ鍵盤（常時表示） -->
+  <div class="piano-bar" id="chromatic-bar"></div>
+  <!-- フィルター -->
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-btn active" data-filter="all"   onclick="setFilter('all',this)">すべて</button>
+    <button class="filter-btn"        data-filter="major" onclick="setFilter('major',this)">長調</button>
+    <button class="filter-btn"        data-filter="minor" onclick="setFilter('minor',this)">短調</button>
+    <button class="filter-btn"        data-filter="sharp" onclick="setFilter('sharp',this)">♯系</button>
+    <button class="filter-btn"        data-filter="flat"  onclick="setFilter('flat',this)">♭系</button>
   </div>
-  <div class="scale-list" id="scale-list" style="max-width:800px; width:100%;"></div>
+  <!-- 音階リスト -->
+  <div class="scale-list" id="scale-list"></div>
 </div>
 
 <!-- ═══════════════════════════════════
      SCREEN: TEST CONFIG
 ════════════════════════════════════ -->
 <div id="screen-test-config" class="screen">
-  <div class="nav-bar" style="max-width:560px; width:100%;">
+  <div class="nav-bar">
     <button class="btn btn-ghost" onclick="showScreen('home')" style="padding:8px;"><span class="ms ms-28" style="color:var(--accent);">home</span></button>
     <div class="nav-title">テスト設定</div>
   </div>
@@ -1264,6 +1391,14 @@
       <div>
         <div class="config-title">音階名を答える</div>
         <div class="config-desc">調号の情報から音階名を選択</div>
+      </div>
+      <div class="config-check"><span class="ms" style="font-size:14px;">check</span></div>
+    </div>
+    <div class="config-card" id="cfg-type-ear" onclick="selectConfig('type','ear',this)">
+      <div class="config-icon"><span class="ms ms-28" style="color:var(--accent);">hearing</span></div>
+      <div>
+        <div class="config-title">音を聴いて答える</div>
+        <div class="config-desc">流れる音階を聴いてスケール名を選択</div>
       </div>
       <div class="config-check"><span class="ms" style="font-size:14px;">check</span></div>
     </div>
@@ -1295,7 +1430,7 @@
      SCREEN: TEST
 ════════════════════════════════════ -->
 <div id="screen-test" class="screen">
-  <div class="nav-bar" style="max-width:800px; width:100%; position:sticky; top:0; z-index:51; background:var(--bg);">
+  <div class="nav-bar">
     <button class="btn btn-ghost" onclick="confirmExit()" style="padding:8px;"><span class="ms ms-28" style="color:var(--accent);">home</span></button>
     <div class="nav-title" id="test-mode-label">テスト</div>
     <button class="btn btn-ghost" onclick="showScreen('progress')" style="margin-left:auto; font-size:13px; color:var(--accent);">進捗</button>
@@ -1632,7 +1767,7 @@ function showScreen(id) {
 
   if (id === 'accounts') renderAccounts();
   if (id === 'home') renderHome();
-  if (id === 'learn') renderLearn();
+  if (id === 'learn') { renderChromaticBar(); renderLearn(); }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2030,6 +2165,135 @@ function setFilter(f, btn) {
   btn.classList.add('active');
   renderLearn();
 }
+
+// ─── 半音階データ（ドイツ音名・カタカナ・MIDI） ───────────────
+const CHROMATIC_NOTES = [
+  { de:'C',   alt:null,  kana:'ツェー',        midi:'C4',  black:false },
+  { de:'Cis', alt:'Des', kana:'ツィス／デス',  midi:'Db4', black:true  },
+  { de:'D',   alt:null,  kana:'デー',          midi:'D4',  black:false },
+  { de:'Dis', alt:'Es',  kana:'ディス／エス',  midi:'Eb4', black:true  },
+  { de:'E',   alt:null,  kana:'エー',          midi:'E4',  black:false },
+  { de:'F',   alt:null,  kana:'エフ',          midi:'F4',  black:false },
+  { de:'Fis', alt:'Ges', kana:'フィス／ゲス',  midi:'Gb4', black:true  },
+  { de:'G',   alt:null,  kana:'ゲー',          midi:'G4',  black:false },
+  { de:'Gis', alt:'As',  kana:'ギス／アス',    midi:'Ab4', black:true  },
+  { de:'A',   alt:null,  kana:'アー',          midi:'A4',  black:false },
+  { de:'Ais', alt:'B',   kana:'アイス／ベー',  midi:'Bb4', black:true  },
+  { de:'H',   alt:null,  kana:'ハー',          midi:'B4',  black:false },
+];
+let chromaticPlayTimer = null;
+
+function renderChromaticBar() {
+  var bar = document.getElementById('chromatic-bar');
+  if (!bar || bar.children.length > 0) return;
+
+  // 白鍵: C D E F G A H C(高)
+  var WHITE = [
+    { de:'C',   kana:'ツェー',  midi:'C4'  },
+    { de:'D',   kana:'デー',    midi:'D4'  },
+    { de:'E',   kana:'エー',    midi:'E4'  },
+    { de:'F',   kana:'エフ',    midi:'F4'  },
+    { de:'G',   kana:'ゲー',    midi:'G4'  },
+    { de:'A',   kana:'アー',    midi:'A4'  },
+    { de:'H',   kana:'ハー',    midi:'B4'  },
+    { de:'C',   kana:'ツェー',  midi:'C5'  },
+  ];
+  // 黒鍵: 白鍵8本 (100%/8 = 12.5% ずつ)
+  var WW = 100 / 8;
+  var BW = WW * 0.62;
+  var BLACK = [
+    { de:'Cis', alt:'Des', kana:'ツィス', midi:'Db4', left: 1*WW - BW/2 },
+    { de:'Dis', alt:'Es',  kana:'ディス', midi:'Eb4', left: 2*WW - BW/2 },
+    { de:'Fis', alt:'Ges', kana:'フィス', midi:'Gb4', left: 4*WW - BW/2 },
+    { de:'Gis', alt:'As',  kana:'ギス',   midi:'Ab4', left: 5*WW - BW/2 },
+    { de:'Ais', alt:'B',   kana:'アイス', midi:'Bb4', left: 6*WW - BW/2 },
+  ];
+
+  // 白鍵を生成
+  WHITE.forEach(function(n, i) {
+    var key = document.createElement('div');
+    key.className = 'piano-white-key';
+    key.style.left  = (i * WW) + '%';
+    key.style.width = WW + '%';
+
+    var de = document.createElement('div');
+    de.className = 'piano-key-de';
+    de.textContent = n.de;
+
+    var kana = document.createElement('div');
+    kana.className = 'piano-key-kana';
+    kana.textContent = n.kana;
+
+    key.appendChild(de);
+    key.appendChild(kana);
+    key.onclick = function() { playPianoKey(n, key); };
+    bar.appendChild(key);
+  });
+
+  // 黒鍵を生成（白鍵の上に重なる）
+  BLACK.forEach(function(n) {
+    var key = document.createElement('div');
+    key.className = 'piano-black-key';
+    key.style.left  = n.left + '%';
+    key.style.width = BW + '%';
+
+    var de = document.createElement('div');
+    de.className = 'piano-key-de';
+    de.textContent = n.de + '/' + n.alt;
+
+    key.appendChild(de);
+    key.onclick = function() { playPianoKey(n, key); };
+    bar.appendChild(key);
+  });
+}
+
+var pianoKeyTimer = null;
+function playPianoKey(note, keyEl) {
+  if (pianoKeyTimer) clearTimeout(pianoKeyTimer);
+  // 全キーのhighlight解除
+  document.querySelectorAll('.piano-white-key, .piano-black-key')
+    .forEach(function(k) { k.classList.remove('playing'); });
+  keyEl.classList.add('playing');
+
+  var freq = NOTE_FREQ[note.midi];
+  if (!freq) return;
+
+  loadSoundfont().then(function(inst) {
+    var ac = getAudioCtx();
+    inst.play(note.midi, ac.currentTime, { duration: 1.2, gain: 3 });
+  }).catch(function() {
+    var ac = getAudioCtx();
+    synthSimple(freq, ac.currentTime, 1.2);
+  });
+
+  pianoKeyTimer = setTimeout(function() {
+    keyEl.classList.remove('playing');
+  }, 1300);
+}
+
+
+function playChromaticNote(note, card) {
+  if (chromaticPlayTimer) clearTimeout(chromaticPlayTimer);
+  document.querySelectorAll('.chroma-key').forEach(function(c) { c.classList.remove('playing'); });
+  card.classList.add('playing');
+
+  var freq = NOTE_FREQ[note.midi];
+  if (!freq) return;
+
+  loadSoundfont().then(function(inst) {
+    var ac = getAudioCtx();
+    inst.play(note.midi, ac.currentTime, { duration: 1.2, gain: 3 });
+  }).catch(function() {
+    var ac = getAudioCtx();
+    synthSimple(freq, ac.currentTime, 1.2);
+  });
+
+  chromaticPlayTimer = setTimeout(function() {
+    card.classList.remove('playing');
+  }, 1400);
+}
+
+
 function renderLearn() {
   const list = document.getElementById('scale-list');
   list.innerHTML = '';
@@ -2152,7 +2416,6 @@ function startTest() {
   let pool = [...SCALES];
   if (state.testConfig.scope === 'major') pool = pool.filter(s => s.type === 'major');
   if (state.testConfig.scope === 'minor') pool = pool.filter(s => s.type === 'minor');
-  // Shuffle
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -2161,8 +2424,8 @@ function startTest() {
   state.testIndex = 0;
   state.testCorrect = 0;
   state.answered = false;
-  document.getElementById('test-mode-label').textContent =
-    state.testConfig.type === 'sign' ? '調号を答える' : '音階名を答える';
+  const labelMap = { sign: '調号を答える', name: '音階名を答える', ear: '耳当てテスト' };
+  document.getElementById('test-mode-label').textContent = labelMap[state.testConfig.type] || 'テスト';
   showScreen('test');
   renderQuestion();
 }
@@ -2180,9 +2443,11 @@ function renderQuestion() {
   document.getElementById('test-correct-count').textContent = state.testCorrect;
   document.getElementById('feedback-popup').classList.remove('show');
   document.getElementById('next-btn').style.display = '';
+  // 耳当て以外は問題カードを表示
+  document.querySelector('.question-card').style.display =
+    state.testConfig.type === 'ear' ? 'none' : '';
 
   if (state.testConfig.type === 'sign') {
-    // Question: scale name → answer: sign count
     document.getElementById('q-label').textContent = '音階名';
     document.getElementById('q-main').textContent = q.de;
     document.getElementById('q-main').className = 'question-main ' + q.type;
@@ -2190,19 +2455,151 @@ function renderQuestion() {
     document.getElementById('q-type').textContent = q.type === 'major' ? '長調 (Dur)' : '短調 (moll) ／ 和声短音階';
     document.getElementById('answer-type-label').textContent = '調号の数を選択';
     renderSignChoices(q);
+  } else if (state.testConfig.type === 'ear') {
+    // 耳当て：問題カードは不要なので非表示
+    document.querySelector('.question-card').style.display = 'none';
+    document.getElementById('q-label').textContent = '';
+    document.getElementById('q-main').textContent = '';
+    document.getElementById('q-main').className = 'question-main';
+    document.getElementById('q-sub').textContent = '';
+    document.getElementById('q-type').textContent = '';
+    document.getElementById('answer-type-label').textContent = '';
+    renderEarChoices(q);
+    // 自動再生なし — ユーザーがボタンを押して聴く
   } else {
-    // Question: sign info → answer: scale name
-    const signStr = q.sign === 'none' ? '調号なし' : q.sign === 'sharp' ? `♯ が ${q.count} つ` : `♭ が ${q.count} つ`;
-    const typeStr = q.type === 'major' ? '長調 (Dur)' : '短調 (moll)';
-    document.getElementById('q-label').textContent = '調号と種類';
     const icon = q.sign === 'sharp' ? '♯' : q.sign === 'flat' ? '♭' : null;
+    document.getElementById('q-label').textContent = '調号と種類';
     document.getElementById('q-main').textContent = q.sign === 'none' ? '調号なし' : `${icon}×${q.count}`;
     document.getElementById('q-main').className = 'question-main ' + (q.sign === 'sharp' ? 'major' : q.sign === 'flat' ? 'minor' : 'none');
-    document.getElementById('q-sub').textContent = typeStr;
+    document.getElementById('q-sub').textContent = q.type === 'major' ? '長調 (Dur)' : '短調 (moll)';
     document.getElementById('q-type').textContent = '';
     document.getElementById('answer-type-label').textContent = '音階名を選択';
     renderNameChoices(q);
   }
+}
+
+let earPlayBtn = null;
+
+function renderEarChoices(q) {
+  const choices = document.getElementById('answer-choices');
+  choices.innerHTML = '';
+  // ear テスト専用ラッパー（縦並び・全幅）
+  choices.style.cssText = 'display:flex; flex-direction:column; gap:12px; width:100%;';
+
+  // ① 「音を聴く」ボタン（全幅）
+  earPlayBtn = document.createElement('button');
+  earPlayBtn.className = 'btn btn-primary ear-play-btn';
+  earPlayBtn.innerHTML = '<span class="ms" style="font-size:22px;">play_circle</span>音を聴く';
+  earPlayBtn.onclick = function() { playEarQuestion(q); };
+  choices.appendChild(earPlayBtn);
+
+  // ② ラベル
+  const label = document.createElement('div');
+  label.className = 'ear-grid-label';
+  label.textContent = '音階名を選択';
+  choices.appendChild(label);
+
+  // ③ 選択肢グリッド（全幅）
+  var pool = SCALES.filter(function(s) {
+    if (state.testConfig.scope === 'major') return s.type === 'major';
+    if (state.testConfig.scope === 'minor') return s.type === 'minor';
+    return true;
+  });
+
+  const grid = document.createElement('div');
+  grid.className = 'ear-choices-grid';
+
+  pool.forEach(function(opt) {
+    var isCorrect = opt.id === q.id;
+    var btn = document.createElement('button');
+    btn.className = 'choice-btn ear-choice-btn';
+    // 長調=水色、短調=ピンクのボーダーで色分け
+    btn.style.borderColor = opt.type === 'major'
+      ? 'rgba(110,181,200,0.3)' : 'rgba(200,110,138,0.3)';
+
+    // 音階名（色付き）
+    var strong = document.createElement('strong');
+    strong.style.color = opt.type === 'major' ? 'var(--sharp)' : 'var(--flat)';
+    strong.textContent = opt.de;
+
+    // 日本語名
+    var jp = document.createElement('div');
+    jp.className = 'ear-btn-jp';
+    jp.textContent = opt.jp;
+
+    // 調号の数
+    var signText = opt.sign === 'none' ? '調号なし'
+      : opt.sign === 'sharp' ? '♯ × ' + opt.count
+      : '♭ × ' + opt.count;
+    var sign = document.createElement('div');
+    sign.className = 'ear-btn-sign';
+    sign.style.color = opt.sign === 'sharp' ? 'var(--sharp)'
+      : opt.sign === 'flat' ? 'var(--flat)' : 'var(--text-dimmer)';
+    sign.textContent = signText;
+
+    btn.appendChild(strong);
+    btn.appendChild(jp);
+    btn.appendChild(sign);
+    btn.onclick = function() { answerSign(isCorrect, btn, q); };
+    grid.appendChild(btn);
+  });
+
+  choices.appendChild(grid);
+}
+
+
+function playEarQuestion(q) {
+  if (!q || !q.midi) return;
+  stopCurrentPlay();
+  isPlaying = true;
+  if (earPlayBtn) {
+    earPlayBtn.innerHTML = '<span class="ms" style="font-size:20px; color:var(--accent);">hourglass_empty</span> ' + (sfInstrument ? '演奏中…' : '読込中…');
+    earPlayBtn.disabled = true;
+  }
+
+  const quarterInterval = 0.50, eighthInterval = 0.25;
+  const quarterDuration = 0.55, eighthDuration  = 0.28;
+  const notes = [...q.midi];
+  const schedule = [];
+  let cursor = 0;
+  notes.forEach((noteStr, i) => {
+    const isEdge = (i === 0 || i === notes.length - 1);
+    schedule.push({ noteStr, startSec: cursor, dur: isEdge ? quarterDuration : eighthDuration });
+    cursor += isEdge ? quarterInterval : eighthInterval;
+  });
+  const totalSec = schedule[schedule.length - 1].startSec + schedule[schedule.length - 1].dur + 0.3;
+
+  const onDone = function() {
+    isPlaying = false;
+    if (earPlayBtn) {
+      earPlayBtn.innerHTML = '<span class="ms" style="font-size:20px; color:var(--accent);">replay</span> もう一度聴く';
+      earPlayBtn.disabled = false;
+    }
+  };
+
+  loadSoundfont().then(function(inst) {
+    if (!isPlaying) return;
+    const ac = getAudioCtx();
+    const now = ac.currentTime;
+    if (earPlayBtn) {
+      earPlayBtn.innerHTML = '<span class="ms" style="font-size:20px; color:var(--accent);">volume_up</span> 演奏中…';
+    }
+    schedule.forEach(function(s) {
+      inst.play(s.noteStr, now + s.startSec, { duration: s.dur, gain: 3 });
+    });
+    const t = setTimeout(onDone, totalSec * 1000);
+    currentPlayTimers.push(t);
+  }).catch(function() {
+    if (!isPlaying) return;
+    const ac = getAudioCtx();
+    const now = ac.currentTime;
+    schedule.forEach(function(s) {
+      const freq = NOTE_FREQ[s.noteStr];
+      if (freq) synthSimple(freq, now + s.startSec, s.dur);
+    });
+    const t = setTimeout(onDone, totalSec * 1000);
+    currentPlayTimers.push(t);
+  });
 }
 
 function renderSignChoices(q) {
@@ -2329,10 +2726,10 @@ function answerSign(isCorrect, btn, q) {
     btn.classList.add('wrong');
     showFeedbackPopup(false, '不正解', line1, line2);
     // 正解の選択肢をハイライト
-    allBtns.forEach(b => {
-      const isC = state.testConfig.type === 'sign'
+    allBtns.forEach(function(b) {
+      var isC = state.testConfig.type === 'sign'
         ? (b.textContent.includes(q.sign === 'none' ? '調号なし' : q.sign === 'sharp' ? '♯' : '♭') && b.textContent.includes(q.count))
-        : b.innerHTML.includes(q.de);
+        : b.textContent.includes(q.de);
       if (isC) b.classList.add('reveal');
     });
   }
@@ -2538,12 +2935,12 @@ function playScale(scaleId, evt) {
   });
   if (btn) {
     btn.classList.add('playing');
-    btn.querySelector('.play-btn-label').textContent = '読込中…';
-    btn.querySelector('.ms').textContent = 'hourglass_empty';
+    btn.querySelector('.play-btn-label').textContent = sfInstrument ? '演奏中' : '読込中…';
+    btn.querySelector('.ms').textContent = sfInstrument ? 'stop' : 'hourglass_empty';
   }
 
-  const quarterInterval = 500;
-  const eighthInterval  = 250;
+  const quarterInterval = 0.50;  // 秒
+  const eighthInterval  = 0.25;
   const quarterDuration = 0.55;
   const eighthDuration  = 0.28;
 
@@ -2552,29 +2949,38 @@ function playScale(scaleId, evt) {
   let cursor = 0;
   notes.forEach((noteStr, i) => {
     const isEdge = (i === 0 || i === notes.length - 1);
-    schedule.push({ noteStr, startMs: cursor, dur: isEdge ? quarterDuration : eighthDuration });
+    schedule.push({ noteStr, startSec: cursor, dur: isEdge ? quarterDuration : eighthDuration, idx: i });
     cursor += isEdge ? quarterInterval : eighthInterval;
   });
 
-  // soundfont-player を試みる（失敗時はフォールバック）
+  const totalSec = schedule[schedule.length - 1].startSec + schedule[schedule.length - 1].dur + 0.3;
+  const pressTime = Date.now(); // ボタン押下の実時刻を記録
+
   loadSoundfont().then(inst => {
+    if (!isPlaying) return;
+    const ac = getAudioCtx();
+    const now = ac.currentTime;
+    // ロード完了までの実経過時間（秒）
+    const loadDelaySec = (Date.now() - pressTime) / 1000;
+
     if (btn) {
       btn.querySelector('.play-btn-label').textContent = '演奏中';
       btn.querySelector('.ms').textContent = 'stop';
     }
-    const ac = getAudioCtx();
 
-    schedule.forEach(({ noteStr, startMs, dur }, i) => {
+    const LATENCY = 0.05;
+    schedule.forEach(({ noteStr, startSec, dur, idx }) => {
+      inst.play(noteStr, now + startSec, { duration: dur, gain: 3 });
+      // ハイライトは「音が鳴る瞬間」に合わせる：ロード待ち時間は既に経過しているのでsetTimeoutの遅延を差し引く
+      const highlightDelay = Math.max(0, (startSec - loadDelaySec + LATENCY) * 1000);
       const t = setTimeout(() => {
-        inst.play(noteStr, ac.currentTime, { duration: dur, gain: 3 });
-        const chips = document.querySelectorAll(`#detail-${scaleId} .note-chip`);
+        const chips = document.querySelectorAll('#detail-' + scaleId + ' .note-chip');
         chips.forEach(c => c.classList.remove('playing-note'));
-        if (chips[i]) chips[i].classList.add('playing-note');
-      }, startMs);
+        if (chips[idx]) chips[idx].classList.add('playing-note');
+      }, highlightDelay);
       currentPlayTimers.push(t);
     });
 
-    const last = schedule[schedule.length - 1];
     const resetT = setTimeout(() => {
       isPlaying = false;
       activeNodes = [];
@@ -2584,30 +2990,31 @@ function playScale(scaleId, evt) {
         btn.querySelector('.ms').textContent = 'play_arrow';
       }
       document.querySelectorAll('.note-chip').forEach(c => c.classList.remove('playing-note'));
-    }, last.startMs + last.dur * 1000 + 300);
+    }, totalSec * 1000);
     currentPlayTimers.push(resetT);
 
   }).catch(() => {
-    // オフライン / CDN到達不可 → シンプル合成にフォールバック
+    if (!isPlaying) return;
+    const ac = getAudioCtx();
+    const now = ac.currentTime;
+
     if (btn) {
       btn.querySelector('.play-btn-label').textContent = '演奏中';
       btn.querySelector('.ms').textContent = 'stop';
     }
-    const ac = getAudioCtx();
 
-    schedule.forEach(({ noteStr, startMs, dur }, i) => {
+    schedule.forEach(({ noteStr, startSec, dur, idx }) => {
       const freq = NOTE_FREQ[noteStr];
       if (!freq) return;
+      synthSimple(freq, now + startSec, dur);
       const t = setTimeout(() => {
-        synthSimple(freq, ac.currentTime, dur);
-        const chips = document.querySelectorAll(`#detail-${scaleId} .note-chip`);
+        const chips = document.querySelectorAll('#detail-' + scaleId + ' .note-chip');
         chips.forEach(c => c.classList.remove('playing-note'));
-        if (chips[i]) chips[i].classList.add('playing-note');
-      }, startMs);
+        if (chips[idx]) chips[idx].classList.add('playing-note');
+      }, startSec * 1000);
       currentPlayTimers.push(t);
     });
 
-    const last = schedule[schedule.length - 1];
     const resetT = setTimeout(() => {
       isPlaying = false;
       activeNodes = [];
@@ -2617,7 +3024,7 @@ function playScale(scaleId, evt) {
         btn.querySelector('.ms').textContent = 'play_arrow';
       }
       document.querySelectorAll('.note-chip').forEach(c => c.classList.remove('playing-note'));
-    }, last.startMs + last.dur * 1000 + 300);
+    }, totalSec * 1000);
     currentPlayTimers.push(resetT);
   });
 }
@@ -2627,6 +3034,9 @@ function playScale(scaleId, evt) {
 // ═══════════════════════════════════════════════════════════
 loadState();
 renderAccounts();
+
+// soundfont を起動時にバックグラウンド先読み（初回再生をスムーズに）
+setTimeout(function() { loadSoundfont().catch(function(){}); }, 1000);
 
 // Service Worker registration
 if ('serviceWorker' in navigator) {
