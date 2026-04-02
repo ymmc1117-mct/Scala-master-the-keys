@@ -1,4 +1,4 @@
-const CACHE_NAME = 'scala-v1';
+const CACHE_NAME = 'scala-v2';
 const ASSETS = [
   './',
   './index.html',
