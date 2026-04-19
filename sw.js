@@ -1,4 +1,4 @@
-const CACHE_NAME = ‘scala-v2’;
+const CACHE_NAME = ‘scala-v3’;
 const ASSETS = [
 ‘./’,
 ‘./index.html’,
@@ -23,16 +23,36 @@ self.clients.claim();
 });
 
 self.addEventListener(‘fetch’, e => {
-const url = e.request.url;
+const req = e.request;
+const url = req.url;
 
-// Google Fonts / Material Symbols: キャッシュ優先、なければネット取得してキャッシュ
+// HTML: ネットワーク優先（常に最新を取りに行く）
+const isHtml = req.mode === ‘navigate’ || url.endsWith(’/’) || url.endsWith(’.html’);
+
+if (isHtml) {
+e.respondWith(
+fetch(req).then(res => {
+if (res && res.status === 200) {
+const copy = res.clone();
+caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+}
+return res;
+}).catch(() =>
+// オフライン時のみキャッシュから
+caches.match(req).then(cached => cached || caches.match(’./index.html’))
+)
+);
+return;
+}
+
+// Google Fonts / Material Symbols: キャッシュ優先
 if (url.includes(‘fonts.googleapis.com’) || url.includes(‘fonts.gstatic.com’)) {
 e.respondWith(
 caches.open(CACHE_NAME).then(cache =>
-cache.match(e.request).then(cached => {
+cache.match(req).then(cached => {
 if (cached) return cached;
-return fetch(e.request).then(res => {
-if (res && res.status === 200) cache.put(e.request, res.clone());
+return fetch(req).then(res => {
+if (res && res.status === 200) cache.put(req, res.clone());
 return res;
 }).catch(() => cached);
 })
@@ -41,8 +61,8 @@ return res;
 return;
 }
 
-// その他: キャッシュ優先
+// その他（画像など）: キャッシュ優先
 e.respondWith(
-caches.match(e.request).then(cached => cached || fetch(e.request))
+caches.match(req).then(cached => cached || fetch(req))
 );
 });
