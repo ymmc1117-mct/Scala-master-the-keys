@@ -359,8 +359,8 @@ body::before {
 .input-field:focus { border-color: var(--accent); }
 .avatar-picker {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 .avatar-opt {
   aspect-ratio: 1;
@@ -400,7 +400,7 @@ body::before {
 /* タブコンテンツエリア：高さ固定でレイアウトシフト防止 */
 .modal-tab-body {
   position: relative;
-  height: 150px;
+  height: 220px;
 }
 .modal-tab-panel {
   display: none;
@@ -1275,8 +1275,8 @@ body::before {
   .results-stats { flex-wrap: wrap; justify-content: center; }
   .celebration-title { font-size: 34px; }
   /* アカウントモーダルを縦方向にコンパクト化 */
-  .modal-tab-body { height: 134px; }
-  .avatar-picker { gap: 6px; }
+  .modal-tab-body { height: 200px; }
+  .avatar-picker { gap: 8px; }
   .modal h2 { font-size: 19px; }
 }
 
@@ -1652,12 +1652,14 @@ body::before {
           <div class="avatar-opt"          data-icon="headphones"    data-color="#a78bfa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#a78bfa;">headphones</span></div>
           <div class="avatar-opt"          data-icon="mic"           data-color="#f472b6"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f472b6;">mic</span></div>
           <div class="avatar-opt"          data-icon="queue_music"   data-color="var(--sharp)"  onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:var(--sharp);">queue_music</span></div>
+          <div class="avatar-opt"          data-icon="album"         data-color="#e8c98e"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#e8c98e;">album</span></div>
           <!-- おもしろ系 -->
           <div class="avatar-opt"          data-icon="rocket_launch" data-color="#60a5fa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">rocket_launch</span></div>
           <div class="avatar-opt"          data-icon="mood"          data-color="#fde047"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#fde047;">mood</span></div>
           <div class="avatar-opt"          data-icon="local_fire_department" data-color="#f87171" onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#f87171;">local_fire_department</span></div>
           <div class="avatar-opt"          data-icon="pets"          data-color="#d4a27f"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#d4a27f;">pets</span></div>
           <div class="avatar-opt"          data-icon="skateboarding" data-color="#60a5fa"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#60a5fa;">skateboarding</span></div>
+          <div class="avatar-opt"          data-icon="auto_awesome"  data-color="#c084fc"       onclick="selectAvatar(this)"><span class="ms avatar-icon" style="color:#c084fc;">auto_awesome</span></div>
         </div>
       </div>
       <div class="modal-tab-panel" id="panel-photo">
