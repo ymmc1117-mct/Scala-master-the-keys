@@ -67,9 +67,9 @@
 .ms-32 { font-size: 32px; }
 .ms-40 { font-size: 40px; }
 .ms-48 { font-size: 48px; }
-/* avatar icon inside account card */
+/* avatar icon inside account card — 親コンテナに応じて可変 */
 .avatar-icon {
-  font-size: 30px;
+  font-size: clamp(20px, 6vw, 30px);
 }
 
 html, body {
@@ -364,18 +364,23 @@ body::before {
 .input-field:focus { border-color: var(--accent); }
 .avatar-picker {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .avatar-opt {
   aspect-ratio: 1;
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   border-radius: 50%;
   border: 2px solid rgba(255,255,255,0.1);
   background: var(--surface2);
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.2s;
+  overflow: hidden;
 }
 .avatar-opt .ms { font-size: clamp(20px, 5vw, 28px); }
 .avatar-opt.selected { border-color: var(--accent); background: rgba(200,169,110,0.15); }
