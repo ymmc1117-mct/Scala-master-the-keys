@@ -131,13 +131,13 @@ body::before {
 @media (min-width: 768px) {
   .start-btn-float { bottom: 32px; min-width: 260px; }
 }
-/* アカウント画面：ロゴ + アカウント群をフレックスで積み、少し上寄せ中央 */
+/* アカウント画面：ロゴ + アカウント群をフレックスで中央配置、下寄り余白で少し上寄せに */
 #screen-accounts {
   justify-content: center;
   min-height: 100%;
-  gap: clamp(32px, 6vh, 56px);
-  padding-top: clamp(48px, 12vh, 96px);
-  padding-bottom: clamp(64px, 16vh, 120px);
+  gap: clamp(24px, 4vh, 40px);
+  /* paddingは上下対称にせず、下を多めにして視覚的に上寄りにする */
+  padding-bottom: clamp(40px, 8vh, 80px);
 }
 /* Screens with inner scroll lists keep overflow hidden */
 #screen-learn {
@@ -1443,12 +1443,13 @@ body::before {
 
 <div id="screen-home" class="screen">
   <div class="home-header">
-    <div>
+    <button class="account-switch-btn" onclick="showScreen('accounts')" title="アカウント切り替え" style="display:inline-flex; align-items:center; gap:2px; padding:8px 12px 8px 8px;">
+      <span class="ms" style="font-size:20px; color:var(--accent);">chevron_left</span>
+      <span class="ms" style="font-size:20px; color:var(--accent);">manage_accounts</span>
+    </button>
+    <div style="flex:1;">
       <div class="greeting"><span style="font-family:'DM Serif Display',serif; font-weight:400;">Hello, </span><span id="greeting-name">—</span></div>
     </div>
-    <button class="account-switch-btn" onclick="showScreen('accounts')" title="アカウント切り替え">
-      <span class="ms" style="font-size:22px; color:var(--accent);">manage_accounts</span>
-    </button>
   </div>
   <div class="mode-cards">
     <div class="mode-card learn card" onclick="showScreen('learn')">
