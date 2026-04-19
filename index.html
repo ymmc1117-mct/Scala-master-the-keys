@@ -131,10 +131,13 @@ body::before {
 @media (min-width: 768px) {
   .start-btn-float { bottom: 32px; min-width: 260px; }
 }
-/* アカウント画面は縦中央配置 */
+/* アカウント画面：ロゴ + アカウント群をフレックスで積み、少し上寄せ中央 */
 #screen-accounts {
   justify-content: center;
   min-height: 100%;
+  gap: clamp(32px, 6vh, 56px);
+  padding-top: clamp(48px, 12vh, 96px);
+  padding-bottom: clamp(64px, 16vh, 120px);
 }
 /* Screens with inner scroll lists keep overflow hidden */
 #screen-learn {
@@ -243,10 +246,10 @@ body::before {
 .staff-deco line { stroke: var(--accent); stroke-width: 1; }
 
 /* ─── SCREEN 2: ACCOUNT SELECT ─── */
-#screen-accounts { gap: clamp(16px, 4vh, 36px); }
 #screen-accounts .logo {
-  font-size: clamp(36px, 7vw, 72px);
+  font-size: clamp(32px, 6vw, 56px);
   padding-top: 0;
+  opacity: 0.9;
 }
 .accounts-grid {
   display: flex;
@@ -1306,8 +1309,7 @@ body::before {
   #screen-splash .tagline { font-size: 18px; margin-bottom: 56px; }
 
   /* アカウント */
-  #screen-accounts { gap: clamp(24px, 5vh, 48px); }
-  #screen-accounts .logo { font-size: clamp(56px, 8vw, 80px); }
+  #screen-accounts .logo { font-size: clamp(44px, 6vw, 64px); }
   .accounts-grid { max-width: 560px; gap: 16px; }
   .account-card { padding: 26px 32px; gap: 22px; }
   .account-avatar { width: 80px; height: 80px; }
@@ -1534,23 +1536,6 @@ body::before {
       <div class="scope-card-icon"><span class="ms ms-28" style="color:var(--flat);">dark_mode</span></div>
       <div class="scope-card-label">短調のみ</div>
     </div>
-  </div>
-
-  <!-- 耳当てテスト用：短音階の形を選択 -->
-
-  <div class="form-pill-row" id="cfg-form-cards" style="display:none;">
-    <button class="form-pill" id="cfg-form-natural" onclick="selectConfig('form','natural',this)">
-      <span>自然</span>
-      <span class="form-pill-check"><span class="ms" style="font-size:12px;">check</span></span>
-    </button>
-    <button class="form-pill selected" id="cfg-form-harmonic" onclick="selectConfig('form','harmonic',this)">
-      <span>和声</span>
-      <span class="form-pill-check"><span class="ms" style="font-size:12px;">check</span></span>
-    </button>
-    <button class="form-pill" id="cfg-form-melodic" onclick="selectConfig('form','melodic',this)">
-      <span>旋律的</span>
-      <span class="form-pill-check"><span class="ms" style="font-size:12px;">check</span></span>
-    </button>
   </div>
 </div>
 
@@ -2715,22 +2700,15 @@ function buildGloss(s, form) {
 // TEST CONFIG
 // ═══════════════════════════════════════════════════════════
 function selectConfig(group, val, el) {
-  const prefixMap = { type: 'cfg-type-', scope: 'cfg-scope-', form: 'cfg-form-' };
+  const prefixMap = { type: 'cfg-type-', scope: 'cfg-scope-' };
   const prefix = prefixMap[group];
-  // form-row/cardsのような表示制御divは除外
   document.querySelectorAll(`[id^="${prefix}"]`).forEach(c => {
-    if (c.classList.contains('config-card') || c.classList.contains('scope-card') || c.classList.contains('form-pill')) {
+    if (c.classList.contains('config-card') || c.classList.contains('scope-card')) {
       c.classList.remove('selected');
     }
   });
   el.classList.add('selected');
   state.testConfig[group] = val;
-
-  // 「短調の形」セレクタの表示条件：耳当てテスト かつ 長調のみ以外
-  if (group === 'type' || group === 'scope') {
-    const show = (state.testConfig.type === 'ear' && state.testConfig.scope !== 'major');
-    document.getElementById('cfg-form-cards').style.display = show ? '' : 'none';
-  }
 }
 
 function startTest() {
