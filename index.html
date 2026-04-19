@@ -326,16 +326,20 @@ body::before {
   z-index: 100;
   opacity: 0; pointer-events: none;
   transition: opacity 0.25s;
+  padding: 16px;  /* ビューポート端との余白 */
+  overflow-y: auto;
 }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal {
   background: var(--surface);
   border-radius: var(--radius-lg);
-  padding: 36px 32px;
-  width: 380px;
+  padding: 28px 24px;
+  width: 100%; max-width: 380px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
   box-shadow: var(--shadow-lg);
   border: 1px solid rgba(255,255,255,0.08);
-  display: flex; flex-direction: column; gap: 20px;
+  display: flex; flex-direction: column; gap: 16px;
   transform: scale(0.95); transition: transform 0.25s;
 }
 .modal-overlay.open .modal { transform: scale(1); }
@@ -396,7 +400,7 @@ body::before {
 /* タブコンテンツエリア：高さ固定でレイアウトシフト防止 */
 .modal-tab-body {
   position: relative;
-  height: 160px;
+  height: 150px;
 }
 .modal-tab-panel {
   display: none;
@@ -1255,8 +1259,8 @@ body::before {
 
   /* 進捗 削除済み */
 
-  /* モーダル */
-  .modal { width: calc(100vw - 40px); padding: 28px 22px; }
+  /* モーダル：paddingだけ少し詰める（widthは外側で max-width:380pxに） */
+  .modal { padding: 24px 20px; gap: 14px; }
 }
 
 /* iPhone SE 3世代 (375×667) 追加調整 */
@@ -1270,6 +1274,10 @@ body::before {
   .accounts-grid { gap: 10px; }
   .results-stats { flex-wrap: wrap; justify-content: center; }
   .celebration-title { font-size: 34px; }
+  /* アカウントモーダルを縦方向にコンパクト化 */
+  .modal-tab-body { height: 134px; }
+  .avatar-picker { gap: 6px; }
+  .modal h2 { font-size: 19px; }
 }
 
 /* ─── iPad Air 第4世代 (820px〜) ─── */
@@ -1364,7 +1372,7 @@ body::before {
   .r-stat-label { font-size: 14px; }
 
   /* モーダル */
-  .modal { width: 480px; padding: 44px 40px; gap: 24px; }
+  .modal { max-width: 480px; padding: 40px 36px; gap: 22px; }
   .modal h2 { font-size: 26px; }
   .input-field { font-size: 18px; padding: 16px 20px; }
   .avatar-picker { gap: 14px; }
