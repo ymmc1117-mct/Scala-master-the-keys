@@ -2563,19 +2563,8 @@ function renderLearn() {
       return `<span class="note-chip ${classes}">${n}</span>`;
     }).join('');
 
-    // 用語解説
-    const typeGloss = s.type === 'major'
-      ? `<div class="gloss-row"><span class="gloss-term">Dur（ドゥア）</span><span class="gloss-def">長調。明るい響きの音階。主音から全・全・半・全・全・全・半の音程で構成される。</span></div>`
-      : `<div class="gloss-row"><span class="gloss-term">moll（モル）</span><span class="gloss-def">短調。哀愁のある響きの音階。ここでは第7音を半音上げた和声短音階を使用。</span></div>`;
-    const leadingGloss = s.leading
-      ? `<div class="gloss-row"><span class="gloss-term">導音（どうおん）</span><span class="gloss-def">主音の半音下の音（第7音）。主音へ強く解決しようとする性質を持つ。</span></div>`
-      : '';
-    const signGloss = s.sign !== 'none'
-      ? `<div class="gloss-row"><span class="gloss-term">調号（ちょうごう）</span><span class="gloss-def">楽譜の冒頭に書かれる♯や♭の記号。曲全体に渡って変化する音を示す。</span></div>`
-      : '';
-    const harmonicGloss = s.type === 'minor'
-      ? `<div class="gloss-row"><span class="gloss-term">和声短音階</span><span class="gloss-def">自然短音階の第7音を半音上げた形。導音を作ることで和音の機能を強める。</span></div>`
-      : '';
+    // 用語解説（初期状態。短調はデフォルト=和声短音階）
+    const glossHtml = buildGloss(s, scaleForm[s.id] || 'harmonic');
 
     const detail = document.createElement('div');
     detail.className = 'scale-detail';
@@ -2604,7 +2593,7 @@ function renderLearn() {
       </div>
       <div class="gloss-section">
         <div class="detail-label" style="margin-bottom:8px;">用語解説</div>
-        ${typeGloss}${harmonicGloss}${leadingGloss}${signGloss}
+        <div id="gloss-${s.id}">${glossHtml}</div>
       </div>`;
 
     wrapper.appendChild(item);
@@ -2683,6 +2672,43 @@ function switchForm(scaleId, form, btnEl) {
       leadingRow.innerHTML = '<span style="font-size:12px; color:var(--accent);">★ 導音: ' + derived.notes[6] + '</span>';
     }
   }
+
+  // 用語解説
+  var glossEl = document.getElementById('gloss-' + scaleId);
+  if (glossEl) {
+    glossEl.innerHTML = buildGloss(scale, form);
+  }
+}
+
+// 用語解説を組み立てる（フォームごとに内容を変える）
+function buildGloss(s, form) {
+  form = form || 'harmonic';
+  var typeGloss = s.type === 'major'
+    ? '<div class="gloss-row"><span class="gloss-term">Dur（ドゥア）</span><span class="gloss-def">長調。明るい響きの音階。主音から全・全・半・全・全・全・半の音程で構成される。</span></div>'
+    : '<div class="gloss-row"><span class="gloss-term">moll（モル）</span><span class="gloss-def">短調。哀愁のある響きの音階。第6音・第7音の扱いで3つの形がある。</span></div>';
+
+  var formGloss = '';
+  if (s.type === 'minor') {
+    if (form === 'harmonic') {
+      formGloss = '<div class="gloss-row"><span class="gloss-term">和声短音階</span><span class="gloss-def">自然短音階の第7音を半音上げた形。導音を作ることで和音の機能を強める。</span></div>';
+    } else if (form === 'natural') {
+      formGloss = '<div class="gloss-row"><span class="gloss-term">自然短音階</span><span class="gloss-def">調号どおりの音だけで構成された短音階。導音を持たず、第7音から主音への解決感が弱い。</span></div>';
+    } else if (form === 'melodic') {
+      formGloss = '<div class="gloss-row"><span class="gloss-term">旋律的短音階</span><span class="gloss-def">上行時は第6・第7音を半音上げ、下行時は自然短音階に戻る形。旋律を滑らかにするための音階。</span></div>';
+    }
+  }
+
+  // 導音解説：自然短音階は導音を持たないので非表示
+  var hasLeading = s.leading && !(s.type === 'minor' && form === 'natural');
+  var leadingGloss = hasLeading
+    ? '<div class="gloss-row"><span class="gloss-term">導音(どうおん)</span><span class="gloss-def">主音の半音下の音（第7音）。主音へ強く解決しようとする性質を持つ。</span></div>'
+    : '';
+
+  var signGloss = s.sign !== 'none'
+    ? '<div class="gloss-row"><span class="gloss-term">調号（ちょうごう）</span><span class="gloss-def">楽譜の冒頭に書かれる♯や♭の記号。曲全体に渡って変化する音を示す。</span></div>'
+    : '';
+
+  return typeGloss + formGloss + leadingGloss + signGloss;
 }
 
 // ═══════════════════════════════════════════════════════════
