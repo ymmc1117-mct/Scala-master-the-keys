@@ -2185,6 +2185,9 @@ function cropPointerUp(e) { cropDragStart = null; }
 
 // ── ピンチズーム ─────────────────────────────────────────
 let pinchDist0 = 0, pinchScale0 = 1;
+let pinchCenterX0 = 0, pinchCenterY0 = 0;  // ピンチ開始時のcanvas内タッチ中心座標
+let pinchOX0 = 0, pinchOY0 = 0;            // ピンチ開始時の画像オフセット
+
 function cropTouchStart(e) {
   if (e.touches.length === 2) {
     e.preventDefault();
@@ -2193,6 +2196,13 @@ function cropTouchStart(e) {
       e.touches[0].clientY - e.touches[1].clientY
     );
     pinchScale0 = cropScale();
+    // ピンチ中心（画面座標）をcrop-wrap内ローカル座標に変換
+    const wrap = document.getElementById('crop-wrap');
+    const rect = wrap.getBoundingClientRect();
+    pinchCenterX0 = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+    pinchCenterY0 = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+    pinchOX0 = cropOX;
+    pinchOY0 = cropOY;
     cropDragStart = null; // ピンチ中はドラッグ無効
   } else {
     cropPointerDown(e);
@@ -2208,6 +2218,13 @@ function cropTouchMove(e) {
     const slider = document.getElementById('crop-zoom');
     const newSc  = Math.min(parseFloat(slider.max),
                     Math.max(parseFloat(slider.min), pinchScale0 * (dist / pinchDist0)));
+    const ratio = newSc / pinchScale0;
+    // ピンチ中心が示す「元画像上の点」を保持するようオフセットを再計算
+    // canvas上の点 = (pinchCenter - pinchOX0) を pinchScale0 で割った位置
+    // 新スケールで同じ元画像点がピンチ中心に来るには:
+    //   newOX = pinchCenterX0 - (pinchCenterX0 - pinchOX0) * ratio
+    cropOX = pinchCenterX0 - (pinchCenterX0 - pinchOX0) * ratio;
+    cropOY = pinchCenterY0 - (pinchCenterY0 - pinchOY0) * ratio;
     slider.value = newSc;
     clampOffset();
     cropDraw();
