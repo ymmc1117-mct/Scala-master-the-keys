@@ -257,6 +257,7 @@ body::before {
 }
 .account-card {
   width: 100%;
+  box-sizing: border-box;
   padding: 18px 20px;
   border-radius: var(--radius-lg);
   cursor: pointer;
@@ -337,11 +338,14 @@ body::before {
   width: 100%; max-width: 380px;
   max-height: calc(100vh - 32px);
   overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
   box-shadow: var(--shadow-lg);
   border: 1px solid rgba(255,255,255,0.08);
   display: flex; flex-direction: column; gap: 16px;
   transform: scale(0.95); transition: transform 0.25s;
 }
+.modal > * { min-width: 0; }
 .modal-overlay.open .modal { transform: scale(1); }
 .modal h2 { font-size: 22px; font-weight: 600; color: var(--accent); }
 .input-field {
@@ -401,12 +405,17 @@ body::before {
 .modal-tab-body {
   position: relative;
   height: 220px;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .modal-tab-panel {
   display: none;
   position: absolute; inset: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   flex-direction: column;
+  box-sizing: border-box;
 }
 .modal-tab-panel.active { display: flex; }
 
@@ -1204,7 +1213,7 @@ body::before {
 /* ─── RESPONSIVE ─── */
 /* タブレット〜小型スマホ共通 */
 @media (max-width: 600px) {
-  .screen { padding: 20px 16px; }
+  .screen { padding: 20px 20px; }
 
   /* スプラッシュ */
   #screen-splash .logo { font-size: 52px; }
@@ -1260,12 +1269,14 @@ body::before {
   /* 進捗 削除済み */
 
   /* モーダル：paddingだけ少し詰める（widthは外側で max-width:380pxに） */
-  .modal { padding: 24px 20px; gap: 14px; }
+  .modal { padding: 20px 16px; gap: 14px; }
+  .avatar-picker { gap: 8px; }
+  .avatar-opt { min-width: 0; }
 }
 
 /* iPhone SE 3世代 (375×667) 追加調整 */
 @media (max-width: 390px) {
-  .screen { padding: 16px 14px; }
+  .screen { padding: 18px 18px; }
   #screen-splash .logo { font-size: 44px; }
   .question-main { font-size: 32px; }
   .answer-choices { grid-template-columns: 1fr; gap: 8px; }
