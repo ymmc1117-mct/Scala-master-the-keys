@@ -1184,15 +1184,15 @@ body::before {
   width: 100%;
 }
 .ear-choice-btn {
-  padding: 8px 6px;
+  padding: 10px 6px;
   font-size: 13px;
   text-align: center;
-  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
 }
-.ear-choice-btn strong { font-size: 14px; font-weight: 600; line-height: 1.15; }
-.ear-btn-jp   { font-size: 10px; opacity: 0.75; line-height: 1.15; }
-.ear-btn-kana { font-size: 9px; color: var(--text-dimmer); line-height: 1.15; }
-.ear-btn-sign { font-size: 9px; font-weight: 600; line-height: 1.15; }
+.ear-choice-btn strong { font-size: 15px; font-weight: 600; line-height: 1.2; }
+.ear-btn-jp   { font-size: 11px; opacity: 0.8; line-height: 1.2; }
+.ear-btn-kana { font-size: 10px; color: var(--text-dimmer); line-height: 1.2; }
 
 /* ─── CELEBRATION ─── */
 .celebration {
@@ -1381,11 +1381,10 @@ body::before {
   /* 耳当てテスト iPad専用 */
   .ear-play-btn { font-size: 18px; padding: 16px 32px; }
   .ear-choices-grid { grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
-  .ear-choice-btn { padding: 8px 8px; font-size: 15px; gap: 1px; }
-  .ear-choice-btn strong { font-size: 16px; }
-  .ear-btn-jp { font-size: 11px; }
-  .ear-btn-kana { font-size: 10px; }
-  .ear-btn-sign { font-size: 10px; }
+  .ear-choice-btn { padding: 12px 10px; font-size: 15px; gap: 3px; }
+  .ear-choice-btn strong { font-size: 17px; }
+  .ear-btn-jp { font-size: 12px; }
+  .ear-btn-kana { font-size: 11px; }
   .choice-btn { padding: 24px 20px; font-size: 17px; }
   .feedback-text { font-size: 18px; }
 
@@ -2420,16 +2419,18 @@ function playPianoKey(note, keyEl) {
   if (!freq) return;
 
   loadSoundfont().then(function(inst) {
+    // 前の音を止めてから新しい音を鳴らす（音の重なり回避）
+    try { inst.stop(); } catch(e) {}
     var ac = getAudioCtx();
-    inst.play(note.midi, ac.currentTime, { duration: 1.2, gain: 3 });
+    inst.play(note.midi, ac.currentTime, { duration: 0.7, gain: 3 });
   }).catch(function() {
     var ac = getAudioCtx();
-    synthSimple(freq, ac.currentTime, 1.2);
+    synthSimple(freq, ac.currentTime, 0.7);
   });
 
   pianoKeyTimer = setTimeout(function() {
     keyEl.classList.remove('playing');
-  }, 1300);
+  }, 800);
 }
 
 
@@ -2867,20 +2868,9 @@ function renderEarChoices(q) {
     kana.className = 'ear-btn-kana';
     kana.textContent = opt.kana;
 
-    // 調号の数
-    var signText = opt.sign === 'none' ? '調号なし'
-      : opt.sign === 'sharp' ? '♯ × ' + opt.count
-      : '♭ × ' + opt.count;
-    var sign = document.createElement('div');
-    sign.className = 'ear-btn-sign';
-    sign.style.color = opt.sign === 'sharp' ? 'var(--sharp)'
-      : opt.sign === 'flat' ? 'var(--flat)' : 'var(--text-dimmer)';
-    sign.textContent = signText;
-
     btn.appendChild(strong);
     btn.appendChild(jp);
     btn.appendChild(kana);
-    btn.appendChild(sign);
     btn.onclick = function() { answerSign(isCorrect, btn, q); };
     grid.appendChild(btn);
   });
