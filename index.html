@@ -933,6 +933,18 @@ body::before {
   color: var(--error);
 }
 .choice-btn.reveal { background: rgba(110,200,138,0.08); border-color: rgba(110,200,138,0.3); color: var(--success); }
+
+/* 音階名を答える用の3段表示ボタン（ボタンサイズは増やさずフォントを詰める） */
+.name-choice-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  padding: 12px 8px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+.name-choice-btn strong { font-size: 15px; font-weight: 600; }
+.name-choice-btn .nc-jp   { font-size: 11px; opacity: 0.75; }
+.name-choice-btn .nc-kana { font-size: 10px; color: var(--text-dimmer); }
 /* disabled 状態でも選択結果の色を維持 */
 .choice-btn:disabled { cursor: default; opacity: 1; }
 .choice-btn:disabled:not(.correct):not(.wrong):not(.reveal) { opacity: 0.4; }
@@ -1172,14 +1184,15 @@ body::before {
   width: 100%;
 }
 .ear-choice-btn {
-  padding: 10px 8px;
+  padding: 8px 6px;
   font-size: 13px;
   text-align: center;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
 }
-.ear-btn-jp   { font-size: 11px; opacity: 0.75; }
-.ear-btn-kana { font-size: 10px; color: var(--text-dimmer); }
-.ear-btn-sign { font-size: 10px; font-weight: 600; margin-top: 1px; }
+.ear-choice-btn strong { font-size: 14px; font-weight: 600; line-height: 1.15; }
+.ear-btn-jp   { font-size: 10px; opacity: 0.75; line-height: 1.15; }
+.ear-btn-kana { font-size: 9px; color: var(--text-dimmer); line-height: 1.15; }
+.ear-btn-sign { font-size: 9px; font-weight: 600; line-height: 1.15; }
 
 /* ─── CELEBRATION ─── */
 .celebration {
@@ -1368,9 +1381,11 @@ body::before {
   /* 耳当てテスト iPad専用 */
   .ear-play-btn { font-size: 18px; padding: 16px 32px; }
   .ear-choices-grid { grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
-  .ear-choice-btn { padding: 10px 8px; font-size: 16px; gap: 2px; }
-  .ear-btn-jp { font-size: 12px; }
-  .ear-btn-sign { font-size: 11px; }
+  .ear-choice-btn { padding: 8px 8px; font-size: 15px; gap: 1px; }
+  .ear-choice-btn strong { font-size: 16px; }
+  .ear-btn-jp { font-size: 11px; }
+  .ear-btn-kana { font-size: 10px; }
+  .ear-btn-sign { font-size: 10px; }
   .choice-btn { padding: 24px 20px; font-size: 17px; }
   .feedback-text { font-size: 18px; }
 
@@ -2847,6 +2862,11 @@ function renderEarChoices(q) {
     jp.className = 'ear-btn-jp';
     jp.textContent = opt.jp;
 
+    // カタカナ読み
+    var kana = document.createElement('div');
+    kana.className = 'ear-btn-kana';
+    kana.textContent = opt.kana;
+
     // 調号の数
     var signText = opt.sign === 'none' ? '調号なし'
       : opt.sign === 'sharp' ? '♯ × ' + opt.count
@@ -2859,6 +2879,7 @@ function renderEarChoices(q) {
 
     btn.appendChild(strong);
     btn.appendChild(jp);
+    btn.appendChild(kana);
     btn.appendChild(sign);
     btn.onclick = function() { answerSign(isCorrect, btn, q); };
     grid.appendChild(btn);
@@ -2973,8 +2994,11 @@ function renderNameChoices(q) {
   all.forEach(opt => {
     const isCorrect = opt.id === q.id;
     const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn.innerHTML = `<strong>${opt.de}</strong><br><span style="font-size:12px;opacity:0.7;">${opt.jp}</span>`;
+    btn.className = 'choice-btn name-choice-btn';
+    btn.innerHTML = `
+      <strong>${opt.de}</strong>
+      <span class="nc-jp">${opt.jp}</span>
+      <span class="nc-kana">${opt.kana}</span>`;
     btn.onclick = () => answerSign(isCorrect, btn, q);
     choices.appendChild(btn);
   });
