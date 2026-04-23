@@ -1140,7 +1140,11 @@ body::before {
 }
 
 /* ─── SCREEN 6: RESULTS ─── */
-#screen-results { gap: 24px; }
+#screen-results {
+  gap: 24px;
+  justify-content: center;
+  min-height: 100%;
+}
 .results-ring {
   position: relative;
   width: 160px; height: 160px;
@@ -1155,14 +1159,10 @@ body::before {
 .results-pct { font-size: 36px; font-weight: 600; }
 .results-pct-label { font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
 .results-stats {
-  display: flex; gap: 24px;
+  display: flex; gap: 32px;
 }
 .r-stat {
   text-align: center;
-  padding: 16px 24px;
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
 }
 .r-stat-val { font-size: 28px; font-weight: 600; }
 .r-stat-label { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
@@ -1608,7 +1608,6 @@ body::before {
 ════════════════════════════════════ -->
 
 <div id="screen-results" class="screen">
-  <div class="logo" style="font-size:32px; margin-bottom:8px;">結果</div>
   <div class="results-ring">
     <svg width="160" height="160" viewBox="0 0 160 160">
       <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
