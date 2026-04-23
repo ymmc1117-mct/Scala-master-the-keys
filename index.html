@@ -1145,6 +1145,13 @@ body::before {
   justify-content: center;
   min-height: 100%;
 }
+.results-type-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dimmer);
+  margin-bottom: -8px;
+}
 .results-ring {
   position: relative;
   width: 160px; height: 160px;
@@ -1608,6 +1615,7 @@ body::before {
 ════════════════════════════════════ -->
 
 <div id="screen-results" class="screen">
+  <div class="results-type-label" id="results-type-label">—</div>
   <div class="results-ring">
     <svg width="160" height="160" viewBox="0 0 160 160">
       <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
@@ -3093,6 +3101,20 @@ function nextQuestion() {
 function finishTest() {
   const total = state.testQueue.length;
   const pct = Math.round((state.testCorrect / total) * 100);
+  const typeLabels = {
+    sign: '調号を答える',
+    name: '音階名を答える',
+    ear:  '耳当てテスト'
+  };
+  const scopeLabels = {
+    all:   '全24音階',
+    major: '長調のみ',
+    minor: '短調のみ'
+  };
+  const typeStr  = typeLabels[state.testConfig.type]   || '';
+  const scopeStr = scopeLabels[state.testConfig.scope] || '';
+  document.getElementById('results-type-label').textContent =
+    typeStr + (scopeStr ? '  ·  ' + scopeStr : '');
   document.getElementById('results-pct').textContent = pct + '%';
   document.getElementById('r-correct').textContent = state.testCorrect;
   document.getElementById('r-wrong').textContent = total - state.testCorrect;
