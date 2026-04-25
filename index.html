@@ -152,7 +152,7 @@ body::before {
 #screen-test > .nav-bar {
   flex-shrink: 0;
   width: 100%;
-  padding: 32px 24px 20px;
+  padding: 32px 24px 0;   /* デフォルト（中型〜大型）。下は .nav-bar 基底の 20px を使う */
   box-sizing: border-box;
   background: var(--bg);
 }
@@ -1263,6 +1263,9 @@ body::before {
 /* タブレット〜小型スマホ共通 */
 @media (max-width: 600px) {
   .screen { padding: 20px 20px; }
+  /* テストナビは他画面の .screen padding と同じ値に揃える */
+  #screen-test > .nav-bar { padding: 20px 20px 0; }
+  #screen-test .test-wrap { padding: 16px 20px 48px; }
 
   /* スプラッシュ */
   #screen-splash .logo { font-size: 52px; }
@@ -1327,6 +1330,8 @@ body::before {
 /* iPhone SE 3世代 (375×667) 追加調整 */
 @media (max-width: 390px) {
   .screen { padding: 18px 18px; }
+  #screen-test > .nav-bar { padding: 18px 18px 0; }
+  #screen-test .test-wrap { padding: 16px 18px 48px; }
   #screen-splash .logo { font-size: 44px; }
   .question-main { font-size: 32px; }
   .answer-choices { grid-template-columns: 1fr; gap: 8px; }
@@ -1401,7 +1406,7 @@ body::before {
 
   /* テスト本体 */
   .test-wrap { max-width: 800px; gap: 28px; }
-  #screen-test > .nav-bar { padding: 48px 40px 24px; }
+  #screen-test > .nav-bar { padding: 48px 40px 0; }
   #screen-test .test-wrap { padding: 24px 40px 64px; }
   .progress-count { font-size: 30px; }
   .question-card { padding: 48px 40px; }
@@ -1543,7 +1548,15 @@ body::before {
     <div class="nav-title">テスト設定</div>
   </div>
   <div class="config-options">
-    <div class="config-card selected" id="cfg-type-sign" onclick="selectConfig('type','sign',this)">
+    <div class="config-card selected" id="cfg-type-ear" onclick="selectConfig('type','ear',this)">
+      <div class="config-icon"><span class="ms ms-28" style="color:var(--accent);">hearing</span></div>
+      <div>
+        <div class="config-title">音を聴いて答える</div>
+        <div class="config-desc">流れる音階を聴いてスケール名を選択</div>
+      </div>
+      <div class="config-check"><span class="ms" style="font-size:14px;">check</span></div>
+    </div>
+    <div class="config-card" id="cfg-type-sign" onclick="selectConfig('type','sign',this)">
       <div class="config-icon"><span class="ms ms-28" style="color:var(--sharp);">tag</span></div>
       <div>
         <div class="config-title">調号の数を答える</div>
@@ -1556,14 +1569,6 @@ body::before {
       <div>
         <div class="config-title">音階名を答える</div>
         <div class="config-desc">調号の情報から音階名を選択</div>
-      </div>
-      <div class="config-check"><span class="ms" style="font-size:14px;">check</span></div>
-    </div>
-    <div class="config-card" id="cfg-type-ear" onclick="selectConfig('type','ear',this)">
-      <div class="config-icon"><span class="ms ms-28" style="color:var(--accent);">hearing</span></div>
-      <div>
-        <div class="config-title">音を聴いて答える</div>
-        <div class="config-desc">流れる音階を聴いてスケール名を選択</div>
       </div>
       <div class="config-check"><span class="ms" style="font-size:14px;">check</span></div>
     </div>
@@ -1597,7 +1602,7 @@ body::before {
 
 <div id="screen-test" class="screen">
   <div class="nav-bar">
-    <button class="btn btn-ghost" onclick="confirmExit()" style="padding:8px;"><span class="ms ms-28" style="color:var(--accent);">home</span></button>
+    <button class="btn btn-ghost" onclick="confirmExit()" style="padding:8px;" title="テストを中断"><span class="ms ms-28" style="color:var(--accent);">arrow_back</span></button>
     <div class="nav-title" id="test-mode-label">テスト</div>
   </div>
   <div class="test-wrap">
@@ -1754,10 +1759,10 @@ body::before {
 <div class="modal-overlay" id="modal-exit">
   <div class="modal" style="gap:16px;">
     <h2 style="font-size:18px;">テストを中断しますか？</h2>
-    <p style="font-size:14px; color:var(--text-dim); line-height:1.6;">ホームに戻ります。テスト結果は保存されません。</p>
+    <p style="font-size:14px; color:var(--text-dim); line-height:1.6;">テスト選択画面に戻ります。途中までの結果は保存されません。</p>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('modal-exit').classList.remove('open')">続ける</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="exitConfirmed()">ホームへ</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="exitConfirmed()">中断する</button>
     </div>
   </div>
 </div>
@@ -1886,7 +1891,7 @@ const SCALES = [
 let state = {
   accounts: [], // {id, name, icon, results: {scaleId: {correct, wrong}}}
   currentAccount: null,
-  testConfig: { type: 'sign', scope: 'all', form: 'harmonic' },
+  testConfig: { type: 'ear', scope: 'all', form: 'harmonic' },
   testQueue: [],
   testIndex: 0,
   testCorrect: 0,
@@ -2791,7 +2796,7 @@ function startTest() {
   state.testIndex = 0;
   state.testCorrect = 0;
   state.answered = false;
-  const labelMap = { sign: '調号を答える', name: '音階名を答える', ear: '耳当てテスト' };
+  const labelMap = { sign: '調号の数を答える', name: '音階名を答える', ear: '音を聴いて答える' };
   document.getElementById('test-mode-label').textContent = labelMap[state.testConfig.type] || 'テスト';
   showScreen('test');
   renderQuestion();
@@ -3129,9 +3134,9 @@ function finishTest() {
   const total = state.testQueue.length;
   const pct = Math.round((state.testCorrect / total) * 100);
   const typeLabels = {
-    sign: '調号を答える',
+    sign: '調号の数を答える',
     name: '音階名を答える',
-    ear:  '耳当てテスト'
+    ear:  '音を聴いて答える'
   };
   const scopeLabels = {
     all:   '全24音階',
@@ -3157,20 +3162,18 @@ function finishTest() {
 }
 
 function confirmExit() {
-  const started = state.testQueue.length > 0 &&
-    (state.testIndex > 0 || state.answered);
-  if (started) {
-    // iOS Safari は window.confirm() をブロックするためアプリ内モーダルを使用
+  // テスト中は常に中断確認ダイアログを表示
+  if (state.testQueue.length > 0) {
     document.getElementById('modal-exit').classList.add('open');
   } else {
-    showScreen('home');
+    showScreen('test-config');
   }
 }
 function exitConfirmed() {
   document.getElementById('modal-exit').classList.remove('open');
-  // ポップアップも閉じてからホームへ
+  // ポップアップも閉じてからテスト選択画面へ
   document.getElementById('feedback-popup').classList.remove('show');
-  showScreen('home');
+  showScreen('test-config');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3182,7 +3185,7 @@ function showCelebration() {
   const colors = ['#c8a96e','#6eb5c8','#c86e8a','#6ec88a','#e8c98e','#a86ec8','#fbbf24','#f87171'];
 
   // テスト種類を表示
-  const typeLabels = { sign: '調号を答える', name: '音階名を答える', ear: '耳当てテスト' };
+  const typeLabels = { sign: '調号の数を答える', name: '音階名を答える', ear: '音を聴いて答える' };
   const scopeLabels = { all: '全24音階', major: '長調のみ', minor: '短調のみ' };
   const typeStr = typeLabels[state.testConfig.type] || '';
   const scopeStr = scopeLabels[state.testConfig.scope] || '';
