@@ -111,11 +111,40 @@ body::before {
   overflow-y: auto;
   justify-content: flex-start;
 }
-/* テスト設定：フルスクロール、開始ボタンは下部フロート */
+/* テスト設定：ナビは上、設定群は残りスペースの縦中央 */
 #screen-test-config {
-  overflow-y: auto;
+  overflow: hidden;
   justify-content: flex-start;
-  padding-bottom: 100px;  /* フロートボタン分のスペース */
+  padding: 0;
+}
+#screen-test-config > .nav-bar {
+  flex-shrink: 0;
+  width: 100%;
+  padding: 40px 24px 0;
+  box-sizing: border-box;
+  max-width: none;
+}
+#screen-test-config > .config-scroll {
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 24px;
+  padding: 24px 24px 100px;  /* 下はフロートボタン分 */
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  #screen-test-config > .nav-bar { padding: 28px 20px 0; }
+  #screen-test-config > .config-scroll { padding: 20px 20px 100px; }
+}
+@media (max-width: 390px) {
+  #screen-test-config > .nav-bar { padding: 24px 18px 0; }
+  #screen-test-config > .config-scroll { padding: 18px 18px 100px; }
+}
+@media (min-width: 768px) {
+  #screen-test-config > .nav-bar { padding: 48px 40px 0; }
+  #screen-test-config > .config-scroll { padding: 32px 40px 120px; }
 }
 .start-btn-float {
   position: fixed;
@@ -1554,6 +1583,7 @@ body::before {
     <button class="btn btn-ghost" onclick="showScreen('home')" style="padding:8px;"><span class="ms ms-28" style="color:var(--accent);">home</span></button>
     <div class="nav-title">テスト設定</div>
   </div>
+  <div class="config-scroll">
   <div class="config-options">
     <div class="config-card selected" id="cfg-type-ear" onclick="selectConfig('type','ear',this)">
       <div class="config-icon"><span class="ms ms-28" style="color:var(--accent);">hearing</span></div>
@@ -1597,6 +1627,7 @@ body::before {
       <div class="scope-card-label">短調のみ</div>
     </div>
   </div>
+  </div><!-- /config-scroll -->
 </div>
 
 <!-- テスト開始ボタン（screen-test-configアクティブ時のみ表示） -->
