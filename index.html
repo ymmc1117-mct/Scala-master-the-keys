@@ -192,6 +192,27 @@ body::before {
   padding: 16px 24px 48px;
   box-sizing: border-box;
 }
+/* 耳当てモード：上部固定、選択肢グリッドだけスクロール */
+#screen-test.ear-mode {
+  overflow: hidden;
+}
+#screen-test.ear-mode .test-wrap {
+  flex: 1;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  padding-bottom: 0;
+}
+#screen-test.ear-mode .answer-choices {
+  flex: 1;
+  min-height: 0;  /* flexコンテナ内でoverflowが効くように */
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+#screen-test.ear-mode .ear-choices-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 24px;
+}
 
 /* ─── COMMON ─── */
 .logo {
@@ -2853,9 +2874,10 @@ function renderQuestion() {
   document.getElementById('test-correct-count').textContent = state.testCorrect;
   document.getElementById('feedback-popup').classList.remove('show');
   document.getElementById('next-btn').style.display = '';
-  // 耳当て以外は問題カードを表示
+  // 耳当て以外は問題カードを表示、ear-modeクラスをトグル
   document.querySelector('.question-card').style.display =
     state.testConfig.type === 'ear' ? 'none' : '';
+  document.getElementById('screen-test').classList.toggle('ear-mode', state.testConfig.type === 'ear');
 
   if (state.testConfig.type === 'sign') {
     document.getElementById('q-label').textContent = '音階名';
