@@ -94,7 +94,7 @@ body::before {
   position: fixed; inset: 0;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  padding: 32px 24px;
+  padding: 40px 24px 32px;
   opacity: 0; pointer-events: none;
   transition: opacity 0.35s ease, transform 0.35s ease;
   transform: translateY(16px);
@@ -152,7 +152,7 @@ body::before {
 #screen-test > .nav-bar {
   flex-shrink: 0;
   width: 100%;
-  padding: 32px 24px 0;   /* デフォルト（中型〜大型）。下は .nav-bar 基底の 20px を使う */
+  padding: 40px 24px 0;   /* デフォルト。下は .nav-bar 基底の 20px を使う */
   box-sizing: border-box;
   background: var(--bg);
 }
@@ -500,8 +500,11 @@ body::before {
 /* ─── SCREEN 3: HOME ─── */
 #screen-home { gap: 24px; justify-content: center; min-height: 100%; }
 .home-header {
+  position: absolute;
+  top: 40px; left: 24px; right: 24px;
   display: flex; align-items: center; justify-content: space-between;
-  width: 100%; max-width: 700px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 .greeting { font-size: 32px; font-weight: 600; }
 .greeting span { color: var(--accent); }
@@ -1030,7 +1033,7 @@ body::before {
 .feedback-next-btn { white-space: nowrap; flex-shrink: 0; }
 
 /* ─── TEST TYPE SELECTOR ─── */
-#screen-test-config { gap: 24px; }
+#screen-test-config { gap: 0; }
 .config-options {
   display: flex; flex-direction: column; gap: 12px;
   width: 100%; max-width: 560px;
@@ -1068,6 +1071,7 @@ body::before {
 .scope-row {
   display: flex; gap: 8px;
   width: 100%; max-width: 560px;
+  margin-top: 16px;
 }
 /* scope カードは幅が小さいので専用レイアウト */
 .scope-card {
@@ -1262,10 +1266,11 @@ body::before {
 /* ─── RESPONSIVE ─── */
 /* タブレット〜小型スマホ共通 */
 @media (max-width: 600px) {
-  .screen { padding: 20px 20px; }
+  .screen { padding: 28px 20px 20px; }
   /* テストナビは他画面の .screen padding と同じ値に揃える */
-  #screen-test > .nav-bar { padding: 20px 20px 0; }
+  #screen-test > .nav-bar { padding: 28px 20px 0; }
   #screen-test .test-wrap { padding: 16px 20px 48px; }
+  .home-header { top: 28px; left: 20px; right: 20px; }
 
   /* スプラッシュ */
   #screen-splash .logo { font-size: 52px; }
@@ -1329,9 +1334,10 @@ body::before {
 
 /* iPhone SE 3世代 (375×667) 追加調整 */
 @media (max-width: 390px) {
-  .screen { padding: 18px 18px; }
-  #screen-test > .nav-bar { padding: 18px 18px 0; }
+  .screen { padding: 24px 18px 18px; }
+  #screen-test > .nav-bar { padding: 24px 18px 0; }
   #screen-test .test-wrap { padding: 16px 18px 48px; }
+  .home-header { top: 24px; left: 18px; right: 18px; }
   #screen-splash .logo { font-size: 44px; }
   .question-main { font-size: 32px; }
   .answer-choices { grid-template-columns: 1fr; gap: 8px; }
@@ -1353,6 +1359,7 @@ body::before {
 /* ─── iPad Air 第4世代 (820px〜) ─── */
 @media (min-width: 768px) {
   .screen { padding: 48px 40px; }
+  .home-header { top: 48px; left: 40px; right: 40px; }
 
   /* スプラッシュ */
   #screen-splash .logo { font-size: 96px; }
