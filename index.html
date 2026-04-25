@@ -549,15 +549,13 @@ body::before {
 
 /* ─── SCREEN 3: HOME ─── */
 #screen-home { gap: 24px; justify-content: center; min-height: 100%; }
-.home-header {
+/* ホーム画面のナビバーは上端固定（他画面と同じ位置） */
+.home-nav {
   position: absolute;
   top: 40px; left: 24px; right: 24px;
-  display: flex; align-items: center; justify-content: space-between;
   max-width: 800px;
   margin: 0 auto;
 }
-.greeting { font-size: 32px; font-weight: 600; }
-.greeting span { color: var(--accent); }
 .account-switch-btn {
   background: none; border: none; cursor: pointer;
   padding: 8px; border-radius: 50%;
@@ -1320,7 +1318,7 @@ body::before {
   /* テストナビは他画面の .screen padding と同じ値に揃える */
   #screen-test > .nav-bar { padding: 28px 20px 0; }
   #screen-test .test-wrap { padding: 16px 20px 48px; }
-  .home-header { top: 28px; left: 20px; right: 20px; }
+  .home-nav { top: 28px; left: 20px; right: 20px; }
 
   /* スプラッシュ */
   #screen-splash .logo { font-size: 52px; }
@@ -1332,8 +1330,7 @@ body::before {
   .account-name { font-size: 15px; }
 
   /* ホーム */
-  .greeting { font-size: 24px; }
-  .home-header { margin-bottom: 0; }
+  .home-nav { margin-bottom: 0; }
   .mode-cards { flex-direction: column; gap: 12px; }
   .mode-card { padding: 22px 20px; }
   .mode-title { font-size: 22px; }
@@ -1387,7 +1384,7 @@ body::before {
   .screen { padding: 24px 18px 18px; }
   #screen-test > .nav-bar { padding: 24px 18px 0; }
   #screen-test .test-wrap { padding: 16px 18px 48px; }
-  .home-header { top: 24px; left: 18px; right: 18px; }
+  .home-nav { top: 24px; left: 18px; right: 18px; }
   #screen-splash .logo { font-size: 44px; }
   .question-main { font-size: 32px; }
   .answer-choices { grid-template-columns: 1fr; gap: 8px; }
@@ -1409,7 +1406,7 @@ body::before {
 /* ─── iPad Air 第4世代 (820px〜) ─── */
 @media (min-width: 768px) {
   .screen { padding: 48px 40px; }
-  .home-header { top: 48px; left: 40px; right: 40px; }
+  .home-nav { top: 48px; left: 40px; right: 40px; }
 
   /* スプラッシュ */
   #screen-splash .logo { font-size: 96px; }
@@ -1428,8 +1425,7 @@ body::before {
   .accounts-empty-title { font-size: 26px; }
 
   /* ホーム */
-  .greeting { font-size: 42px; }
-  .home-header { max-width: 800px; }
+  .home-nav { max-width: 800px; }
   .mode-cards { max-width: 800px; gap: 24px; }
   .mode-card { padding: 40px 36px; }
   .mode-title { font-size: 32px; }
@@ -1511,8 +1507,10 @@ body::before {
   .celebration-title { font-size: 72px; }
   .celebration-sub { font-size: 22px; }
 
-  /* nav */
+  /* nav: iPadではアイコンとタイトルを統一サイズに */
   .nav-title { font-size: 22px; }
+  .nav-bar .btn-ghost .ms { font-size: 32px !important; }
+  .account-switch-btn .ms { font-size: 24px !important; }
 }
 ```
 
@@ -1551,14 +1549,12 @@ body::before {
 ════════════════════════════════════ -->
 
 <div id="screen-home" class="screen">
-  <div class="home-header">
-    <button class="account-switch-btn" onclick="showScreen('accounts')" title="アカウント切り替え" style="display:inline-flex; align-items:center; gap:2px; padding:8px 12px 8px 8px;">
-      <span class="ms" style="font-size:20px; color:var(--accent);">chevron_left</span>
-      <span class="ms" style="font-size:20px; color:var(--accent);">manage_accounts</span>
+  <div class="nav-bar home-nav">
+    <button class="btn btn-ghost" onclick="showScreen('accounts')" title="アカウント切り替え" style="padding:8px; display:inline-flex; align-items:center; gap:2px;">
+      <span class="ms ms-28" style="color:var(--accent);">chevron_left</span>
+      <span class="ms ms-28" style="color:var(--accent);">manage_accounts</span>
     </button>
-    <div style="flex:1;">
-      <div class="greeting"><span style="font-family:'DM Serif Display',serif; font-weight:400;">Hello, </span><span id="greeting-name">—</span></div>
-    </div>
+    <div class="nav-title"><span style="font-family:'DM Serif Display',serif; font-weight:400;">Hello, </span><span id="greeting-name">—</span></div>
   </div>
   <div class="mode-cards">
     <div class="mode-card learn card" onclick="showScreen('learn')">
