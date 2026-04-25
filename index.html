@@ -2968,7 +2968,7 @@ function playEarQuestion(q) {
   stopCurrentPlay();
   isPlaying = true;
   if (earPlayBtn) {
-    earPlayBtn.innerHTML = '<span class="ms" style="font-size:20px; color:var(--accent);">volume_up</span> 演奏中…';
+    earPlayBtn.innerHTML = '<span class="ms" style="font-size:20px;">volume_up</span> 演奏中…';
     earPlayBtn.disabled = true;
   }
 
@@ -2992,7 +2992,7 @@ function playEarQuestion(q) {
   const onDone = function() {
     isPlaying = false;
     if (earPlayBtn) {
-      earPlayBtn.innerHTML = '<span class="ms" style="font-size:20px; color:var(--accent);">replay</span> もう一度聴く';
+      earPlayBtn.innerHTML = '<span class="ms" style="font-size:20px;">replay</span> もう一度聴く';
       earPlayBtn.disabled = false;
     }
   };
@@ -3002,7 +3002,7 @@ function playEarQuestion(q) {
     const ac = getAudioCtx();
     const now = ac.currentTime;
     if (earPlayBtn) {
-      earPlayBtn.innerHTML = '<span class="ms" style="font-size:20px; color:var(--accent);">volume_up</span> 演奏中…';
+      earPlayBtn.innerHTML = '<span class="ms" style="font-size:20px;">volume_up</span> 演奏中…';
     }
     schedule.forEach(function(s) {
       inst.play(s.noteStr, now + s.startSec, { duration: s.dur, gain: 3 });
