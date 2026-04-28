@@ -160,13 +160,24 @@ body::before {
 @media (min-width: 768px) {
   .start-btn-float { bottom: 32px; min-width: 260px; }
 }
-/* アカウント画面：ロゴ + アカウント群をフレックスで中央配置、下寄り余白で少し上寄せに */
+/* アカウント画面：ロゴは上端固定、アカウント群は画面縦中央 */
 #screen-accounts {
   justify-content: center;
   min-height: 100%;
-  gap: clamp(24px, 4vh, 40px);
-  /* paddingは上下対称にせず、下を多めにして視覚的に上寄りにする */
-  padding-bottom: clamp(40px, 8vh, 80px);
+}
+#screen-accounts .logo {
+  position: absolute;
+  top: 40px; left: 0; right: 0;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  #screen-accounts .logo { top: 28px; }
+}
+@media (max-width: 390px) {
+  #screen-accounts .logo { top: 24px; }
+}
+@media (min-width: 768px) {
+  #screen-accounts .logo { top: 48px; }
 }
 /* Screens with inner scroll lists keep overflow hidden */
 #screen-learn {
